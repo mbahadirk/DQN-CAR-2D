@@ -114,8 +114,7 @@ def getWalls():
 
     return (walls)
 
-walls = getWalls()
-
-for wall in walls:
-    print(wall.x1, wall.y1, wall.x2, wall.y2)
-    pygame.rect(wall.x1, wall.y1, wall.x2, wall.y2)
+if __name__ == "__main__":
+    walls = getWalls()
+    for wall in walls:
+        print(f"Duvar Koordinatları: ({wall.x1}, {wall.y1}) -> ({wall.x2}, {wall.y2})")
