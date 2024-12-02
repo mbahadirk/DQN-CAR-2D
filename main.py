@@ -65,8 +65,8 @@ class Game:
             screen.blit(road_img, (0, 0))  # Haritayı çiz
             # pygame.draw.rect(screen, (0, 0, 255), (250, 250, 50, 50))
 
-            # for ray_name, ray_info in self.car.rays.items():
-            #     self.check_collision(f"{ray_name}Ray")
+            for ray_name, ray_info in self.car.rays.items():
+                self.check_collision(f"{ray_name}Ray")
 
             self.check_collision("topLeftRay")
             self.check_collision("topRightRay")
