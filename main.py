@@ -17,7 +17,7 @@ pygame.display.set_caption("Gerçekçi Araba Sürüşü")
 clock = pygame.time.Clock()
 
 
-road_img = pygame.image.load("images/track2.png").convert()
+road_img = pygame.image.load(ROAD_IMAGE_PATH).convert()
 # grass_img = pygame.image.load("images/grass.jpg").convert()
 # track = pygame.image.load("images/track.png").convert()
 
@@ -27,7 +27,10 @@ SPAWN_POINT = (150, 100, 90)
 
 # main.py
 
-from walls import getWalls
+import walls
+image_path = ROAD_IMAGE_PATH  # Buraya PNG dosyasının yolunu yazın
+walls = walls.generate_walls_from_image(image_path)
+print(len(walls))
 
 class Game:
     def __init__(self):
@@ -43,8 +46,10 @@ class Game:
             keys = pygame.key.get_pressed()
             self.car.update(keys)
 
-            screen.fill(GRAY)
-            screen.blit(road_img, (0, 0))
+            screen.fill(color=(0,160,10))
+            # screen.blit(road_img, (0, 0))
+            for wall in walls:
+                wall.draw(screen)
 
             self.car.draw(screen)  # Araba ve ışınları çiz
 

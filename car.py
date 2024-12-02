@@ -1,7 +1,13 @@
 import pygame
 import math
+
+from CFG import ROAD_IMAGE_PATH
 from ray import Ray
-from walls import getWalls
+import walls
+
+image_path = ROAD_IMAGE_PATH  # Buraya PNG dosyasının yolunu yazın
+walls = walls.generate_walls_from_image(image_path)
+
 
 class Car:
     def __init__(self, image_path, scale_factor=0.1, start_x=0, start_y=0, start_angle=130):
@@ -49,7 +55,7 @@ class Car:
             ray.start_x = self.rect.centerx
             ray.start_y = self.rect.centery
             ray.angle = self.angle + self.ray_offsets[i]  # Arabanın açısına offset ekleyerek güncelle
-            ray.cast(getWalls())  # Çarpışma tespiti
+            ray.cast(walls)  # Çarpışma tespiti
 
     def draw(self, screen):
         """
