@@ -28,7 +28,7 @@ class Car:
         self.friction = 0.05
 
         # Collider için dikdörtgen
-        self.rect = pygame.Rect(self.x, self.y, self.car_width, self.car_height)
+        self.rect = self.car_image.get_rect(center=(self.x, self.y))
 
 
 

@@ -4,15 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="4d62ca8f-09a1-4087-9dcd-6ae6644a7c01" name="Changes" comment="beams connected with car">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CFG.py" beforeDir="false" afterPath="$PROJECT_DIR$/CFG.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/car.py" beforeDir="false" afterPath="$PROJECT_DIR$/car.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/car_test.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/main_test.py" beforeDir="false" afterPath="$PROJECT_DIR$/main_test.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/walls.py" beforeDir="false" />
-    </list>
+    <list default="true" id="4d62ca8f-09a1-4087-9dcd-6ae6644a7c01" name="Changes" comment="beams fixed, road utils made" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -49,6 +41,7 @@
   &quot;keyToString&quot;: {
     &quot;Python.car.executor&quot;: &quot;Run&quot;,
     &quot;Python.car_test.executor&quot;: &quot;Run&quot;,
+    &quot;Python.generate_roads.executor&quot;: &quot;Run&quot;,
     &quot;Python.main.executor&quot;: &quot;Run&quot;,
     &quot;Python.main_test.executor&quot;: &quot;Run&quot;,
     &quot;Python.test.executor&quot;: &quot;Run&quot;,
@@ -67,6 +60,8 @@
       <recent name="C:\Users\pahstoner\PycharmProjects\car2d" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\pahstoner\PycharmProjects\DQN-CAR-2D\utilities" />
+      <recent name="C:\Users\pahstoner\PycharmProjects\DQN-CAR-2D\old_files" />
       <recent name="C:\Users\pahstoner\PycharmProjects\DQN-CAR-2D\images" />
     </key>
   </component>
@@ -84,7 +79,7 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/car.py" />
+      <option name="SCRIPT_NAME" value="C:\Users\pahstoner\PycharmProjects\DQN-CAR-2D\car.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -93,7 +88,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="car" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+    <configuration name="generate_roads" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="car2d" />
       <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -106,7 +101,7 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="C:\Users\pahstoner\PycharmProjects\DQN-CAR-2D\car.py" />
+      <option name="SCRIPT_NAME" value="C:\Users\pahstoner\PycharmProjects\DQN-CAR-2D\utilities\generate_roads.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -184,10 +179,9 @@
     <recent_temporary>
       <list>
         <item itemvalue="Python.main" />
+        <item itemvalue="Python.generate_roads" />
         <item itemvalue="Python.main_test" />
-        <item itemvalue="Python.car_test" />
         <item itemvalue="Python.walls" />
-        <item itemvalue="Python.car" />
       </list>
     </recent_temporary>
   </component>
@@ -223,7 +217,23 @@
       <option name="project" value="LOCAL" />
       <updated>1733178100062</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="beams fixed, road utils made">
+      <option name="closed" value="true" />
+      <created>1733267309760</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1733267309760</updated>
+    </task>
+    <task id="LOCAL-00004" summary="beams fixed, road utils made">
+      <option name="closed" value="true" />
+      <created>1733267325687</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1733267325687</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -257,6 +267,7 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="before big change" />
     <MESSAGE value="beams connected with car" />
-    <option name="LAST_COMMIT_MESSAGE" value="beams connected with car" />
+    <MESSAGE value="beams fixed, road utils made" />
+    <option name="LAST_COMMIT_MESSAGE" value="beams fixed, road utils made" />
   </component>
 </project>
