@@ -1,6 +1,6 @@
 import pygame
 from car import Car
-from utilities.utils import apply_threshold
+from utilities.threshold import apply_threshold
 from CFG import ROAD_IMAGE_PATH, CAR_IMAGE_PATH, WINDOW_SIZE, P_YELLOW, GRAY
 from ray_list import create_rays
 from utilities.road_utils import find_closest_point, calculate_distance_from_start, load_road_points

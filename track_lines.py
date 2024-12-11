@@ -5,13 +5,13 @@ import pygame
 
 class TrackLines:
     def __init__(self):
-        self.start_line = (15, 270, 90, 10)
+        self.start_line = (15, 360, 150, 10)
         self.start_line_rect = pygame.Rect(*self.start_line)
 
-        self.mid_line = (860, 400, 90, 10)
+        self.mid_line = (820, 400, 150, 10)
         self.mid_line_rect = pygame.Rect(*self.mid_line)
 
-        self.blue_line = (15, 310, 90, 10)
+        self.blue_line = (15, 390, 150, 10)
         self.blue_line_rect = pygame.Rect(*self.blue_line)
 
 

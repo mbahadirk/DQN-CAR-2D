@@ -61,15 +61,15 @@ def save_road_points(road_points, filepath):
 
 if __name__ == "__main__":
     # Resim yolu ve çıkış dosyası
-    image_path = ROAD_IMAGE_PATH # Yol resmi
-    output_file = "../road_points.txt"
+    image_path = f'{ROAD_IMAGE_PATH}' # Yol resmi
+    output_file = "road_points.txt"
 
     # Yol konturunu al
     try:
         road_contour = get_road_contour(image_path)
 
         # Nokta sayısı
-        num_points = 100
+        num_points = 250
 
         # Yol üzerinde eşit aralıklı noktalar oluştur
         road_points = generate_points_on_road(road_contour, num_points)
