@@ -10,23 +10,30 @@ class DQNAgent:
         self.state_size = state_size
         self.action_size = action_size
         self.memory = deque(maxlen=100000)
-        self.gamma = 0.95  # Gelecekteki ödülleri indirim faktörü
+        self.gamma = 0.98  # Gelecekteki ödülleri indirim faktörü
         self.epsilon = 1.0  # Keşif oranı
-        self.epsilon_min = 0.01
-        self.epsilon_decay = 0.999
+        self.epsilon_min = 0.005
+        self.epsilon_decay = 0.998
         self.learning_rate = 0.001
         self.model = self.build_model()
         self.optimizer = optim.Adam(self.model.parameters(), lr=self.learning_rate)
 
     def build_model(self):
         return nn.Sequential(
-            nn.Linear(self.state_size, 256),
+            nn.Linear(self.state_size, 10),
             nn.ReLU(),
-            nn.Linear(256, 256),
+            nn.Linear(10, 10),
             nn.ReLU(),
-            nn.Linear(256, 128),
+            nn.Linear(10, 10),
             nn.ReLU(),
-            nn.Linear(128, self.action_size)
+            nn.Linear(10, 10),
+            nn.ReLU(),
+            nn.Linear(10, 10),
+            nn.ReLU(),
+            nn.Linear(10, 10),
+            nn.ReLU(),
+            nn.Linear(10, self.action_size)
+
         )
 
     def remember(self, state, action, reward, next_state, done):

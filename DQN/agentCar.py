@@ -23,8 +23,8 @@ class Car:
         self.angle = start_angle
         self.speed = 0
         self.acceleration = 0.5
-        self.deceleration = 0.2
-        self.max_speed = 8
+        self.deceleration = 0.4
+        self.max_speed = 3
         self.friction = 0.05
 
         # Collider için dikdörtgen
@@ -68,35 +68,35 @@ class Car:
 
         # Dönme
         if action == 2:
-            self.angle += 3
+            self.angle += 8
         if action == 3:
-            self.angle -= 3
+            self.angle -= 8
 
-        if action == 4:  # İleri sağa gitme
-            self.speed += self.acceleration
-            self.angle += 3
-            if self.speed > self.max_speed:
-                self.speed = self.max_speed
+        # if action == 4:  # İleri sağa gitme
+        #     self.speed += self.acceleration
+        #     self.angle += 5
+        #     if self.speed > self.max_speed:
+        #         self.speed = self.max_speed
+        #
+        # if action == 5:  # İleri sola gitme
+        #     self.speed += self.acceleration
+        #     self.angle -= 5
+        #     if self.speed > self.max_speed:
+        #         self.speed = self.max_speed
 
-        if action == 5:  # İleri sola gitme
-            self.speed += self.acceleration
-            self.angle -= 3
-            if self.speed > self.max_speed:
-                self.speed = self.max_speed
+        # if action == 6:  # SAĞ Geri gitme
+        #     self.speed -= self.deceleration
+        #     self.angle += 3
+        #     if self.speed < -self.max_speed / 2:
+        #         self.speed = -self.max_speed / 2
+        #
+        # if action == 7:  # Sol Geri gitme
+        #     self.speed -= self.deceleration
+        #     self.angle -= 3
+        #     if self.speed < -self.max_speed / 2:
+        #         self.speed = -self.max_speed / 2
 
-        if action == 6:  # SAĞ Geri gitme
-            self.speed -= self.deceleration
-            self.angle += 3
-            if self.speed < -self.max_speed / 2:
-                self.speed = -self.max_speed / 2
-
-        if action == 7:  # Sol Geri gitme
-            self.speed -= self.deceleration
-            self.angle -= 3
-            if self.speed < -self.max_speed / 2:
-                self.speed = -self.max_speed / 2
-
-        if action == 8:
+        if action == 4:
             pass
 
         # Araba hareketi

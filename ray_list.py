@@ -17,8 +17,8 @@ def create_rays(surface):
         Ray(-45, surface, name='frontLeftRay4'),
         Ray(-60, surface, name='frontLeftRay5'),
 
-        Ray(-90, surface, name='midLeftRay'),
-        Ray(90, surface, name='midRightRay'),
+        # Ray(-90, surface, name='midLeftRay'),
+        # Ray(90, surface, name='midRightRay'8),
         # Ray(180, surface, name='backMidRay'),
         # Ray(-150, surface, name='backLeftRay'),
         # Ray(150, surface, name='backRightRay')
