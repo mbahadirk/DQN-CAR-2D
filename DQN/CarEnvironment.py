@@ -8,7 +8,7 @@ class CarEnvironment:
         self.car = car
         self.track_lines = track_lines
         self.reset_function = reset_function
-        self.state_size = 5  # [ışınlar*14, hız,score,angle]
+        self.state_size = 13  # [ışınlar*14, hız,score,angle]
         self.action_size = 5  # [ileri, geri, sağ, sol, sağ ileri, sol ileri, sağ geri, sol geri, hiçbiri]
         self.pass_startline = False
         self.lap_flag = False
