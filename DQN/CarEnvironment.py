@@ -8,7 +8,7 @@ class CarEnvironment:
         self.car = car
         self.track_lines = track_lines
         self.reset_function = reset_function
-        self.state_size = 14  # [ışınlar*14, hız,score,angle]
+        self.state_size = 5  # [ışınlar*14, hız,score,angle]
         self.action_size = 5  # [ileri, geri, sağ, sol, sağ ileri, sol ileri, sağ geri, sol geri, hiçbiri]
         self.pass_startline = False
         self.lap_flag = False
@@ -24,10 +24,10 @@ class CarEnvironment:
         ray_distances = [ray.distance for ray in self.rays]
         # ray_distances = np.array(ray_distances)
         # ray_distances = ray_distances / np.max(ray_distances)
-        normalized_angle = self.car.angle / 360.0  # 0-1 aralığında
+        # normalized_angle = self.car.angle / 360.0  # 0-1 aralığında
         normalized_speed = self.car.speed / self.car.max_speed
         return np.array([
-            *ray_distances, normalized_speed, self.score,normalized_angle])
+            *ray_distances, normalized_speed, self.score])
 
     def step(self, action):
         # Arabayı güncelle

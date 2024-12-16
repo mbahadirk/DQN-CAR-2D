@@ -14,25 +14,17 @@ class DQNAgent:
         self.epsilon = 1.0  # Keşif oranı
         self.epsilon_min = 0.005
         self.epsilon_decay = 0.998
-        self.learning_rate = 0.001
+        self.learning_rate = 0.01
         self.model = self.build_model()
         self.optimizer = optim.Adam(self.model.parameters(), lr=self.learning_rate)
 
     def build_model(self):
         return nn.Sequential(
-            nn.Linear(self.state_size, 10),
+            nn.Linear(self.state_size, 15),
             nn.ReLU(),
-            nn.Linear(10, 10),
+            nn.Linear(15, 5),
             nn.ReLU(),
-            nn.Linear(10, 10),
-            nn.ReLU(),
-            nn.Linear(10, 10),
-            nn.ReLU(),
-            nn.Linear(10, 10),
-            nn.ReLU(),
-            nn.Linear(10, 10),
-            nn.ReLU(),
-            nn.Linear(10, self.action_size)
+            nn.Linear(5, self.action_size)
 
         )
 

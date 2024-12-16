@@ -5,8 +5,8 @@ HALF_RED  = (0, 250, 0, 128)
 P_YELLOW = (255, 255, 0)
 
 
-CAR_IMAGE_PATH = 'images/car.png'
-ROAD_IMAGE_PATH = "images/track2.png"
+CAR_IMAGE_PATH = '../images/car.png'
+ROAD_IMAGE_PATH = "../images/track2.png"
 
 
 import pygame

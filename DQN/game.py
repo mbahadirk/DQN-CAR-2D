@@ -15,10 +15,11 @@ track_lines = TrackLines()
 from utilities.threshold import apply_threshold
 
 
-start_pos = (60, 230)
+start_pos = (60, 400)
 
-batch_size = 256
+batch_size = 512
 tick_rate = 30
+
 
 def reset_game():
     global car
@@ -30,7 +31,7 @@ def reset_game():
 def start_training(car, rays, score, env, agent):
     # env = CarEnvironment(car, track_lines, reset_game, rays, score)
     # agent = DQNAgent(env.state_size, env.action_size)
-    episodes = 10
+    episodes = 5
 
     for e in range(episodes):
         state = env.reset()
@@ -129,6 +130,7 @@ def main():
 
         if collision :
             collided = True
+
         if env.reward/1000 < -1:
             env.reward -= 1000
             env.reward = env.reward / 1000
@@ -165,7 +167,7 @@ def main():
             reset_game()
             time = 0
             env.reward = 0
-            max_time += 0.5
+            max_time += 0.1
 
         if time >= tick_rate*2 * max_time:
             collided = True
@@ -189,7 +191,7 @@ def main():
 
         # draw the road points
         for point in road_points:
-            pygame.draw.circle(window, (128,128,0), point, 2)
+            pygame.draw.circle(window, (255,20,35), point, 2)
 
         # draw distance
         font = pygame.font.SysFont(None, 24)
