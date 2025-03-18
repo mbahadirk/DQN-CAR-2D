@@ -6,12 +6,34 @@ from collections import deque
 
 
 class DQNAgent:
+    """
+    The DQNAgent class implements a Deep Q-Network (DQN) agent for reinforcement learning. This class is responsible for managing the agent's interactions with the environment, storing experiences, and learning from them to improve its decision-making policy.
+
+    Attributes:
+    - state_size: The size of the state space, representing the number of features in the input state.
+    - action_size: The number of possible actions the agent can take in the environment.
+    - memory: A deque used to store experiences (state, action, reward, next_state, done) for training.
+    - gamma: The discount factor used to weigh future rewards.
+    - epsilon: The exploration rate, determining the probability of taking a random action instead of an optimal one.
+    - epsilon_min: The minimum exploration rate.
+    - epsilon_decay: The rate at which the exploration rate decays after each episode.
+    - learning_rate: The learning rate for the optimizer.
+    - model: A neural network model used to approximate the Q-values for each action given a state.
+    - optimizer: An optimizer used to update the model's weights based on the loss.
+
+    Methods:
+    - __init__: Initializes the DQNAgent with the specified state and action sizes, and sets up the memory, model, and optimizer.
+    - build_model: Constructs the neural network model for approximating Q-values.
+    - remember: Stores an experience in the agent's memory.
+    - act: Chooses an action based on the current state, either by exploring randomly or exploiting the learned policy.
+    - replay: Samples a batch of experiences from memory to train the model, updating the Q-values using the Bellman equation.
+    """
     def __init__(self, state_size, action_size):
         self.state_size = state_size
         self.action_size = action_size
         self.memory = deque(maxlen=100000)
-        self.gamma = 0.98  # Gelecekteki ödülleri indirim faktörü
-        self.epsilon = 1.0  # Keşif oranı
+        self.gamma = 0.98  # Discount factor for future rewards
+        self.epsilon = 1.0  # Exploration rate
         self.epsilon_min = 0.005
         self.epsilon_decay = 0.998
         self.learning_rate = 1e-6
@@ -33,7 +55,7 @@ class DQNAgent:
 
     def act(self, state):
         if random.uniform(0, 1) <= self.epsilon:
-            return random.randrange(self.action_size)  # Rastgele eylem
+            return random.randrange(self.action_size)  # Random action
         state = torch.FloatTensor(state)
         act_values = self.model(state)
         return torch.argmax(act_values).item()

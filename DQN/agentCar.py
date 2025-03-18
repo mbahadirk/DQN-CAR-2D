@@ -4,6 +4,11 @@ import pygame
 
 
 class Car:
+    """
+        This class represents a car that can be used in a game.
+        The car has a position, an angle, a speed, an acceleration and a deceleration.
+        The car can be drawn on a surface and can be moved.
+    """
     def __init__(self, image_path, scale_factor=0.001, start_x=100, start_y=100, start_angle=0):
         self.car_img = pygame.image.load(image_path)
         self.scale_factor = scale_factor
@@ -12,12 +17,12 @@ class Car:
         self.start_y = start_y
         self.start_angle = start_angle
 
-        # Araba boyutlarını ölçekle
+        # Scale the car size
         self.car_width = int(self.car_img.get_width() * self.scale_factor)
         self.car_height = int(self.car_img.get_height() * self.scale_factor)
         self.car_image = pygame.transform.scale(self.car_img, (self.car_width, self.car_height))
 
-        # Başlangıç konumu ve açısı
+        # Initial position and angle
         self.x = start_x
         self.y = start_y
         self.angle = start_angle
@@ -27,38 +32,38 @@ class Car:
         self.max_speed = 3
         self.friction = 0.05
 
-        # Collider için dikdörtgen
+        # Rectangle for collision detection
         self.rect = self.car_image.get_rect(center=(self.x, self.y))
 
     def draw(self, surface):
-        # Arabayı çiz
+        # Draw the car
 
         rotated_car = pygame.transform.rotate(self.car_image, -self.angle)
         rotated_car.set_alpha(255)
         rect = rotated_car.get_rect(center=(self.x, self.y))
         surface.blit(rotated_car, rect.topleft)
 
-        # Yarı saydam kırmızı dikdörtgen (collider)
+        # Semi-transparent red rectangle (collider)
 
         collider_surface = pygame.Surface((self.rect.width, self.rect.height), pygame.SRCALPHA)
-        # pygame.draw.rect(collider_surface, (127,0,0), collider_surface.get_rect())  # Yarı saydam kırmızı
-        # Collider'ı döndür ve çiz
+        # pygame.draw.rect(collider_surface, (127,0,0), collider_surface.get_rect())  # Semi-transparent red
+        # Rotate and draw the collider
         rotated_collider = pygame.transform.rotate(collider_surface, -self.angle)
         collider_rect = rotated_collider.get_rect(center=rect.center)
         surface.blit(rotated_collider, collider_rect.topleft)
 
 
     def update(self, action):
-        if action == 0:  # İleri gitme
+        if action == 0:  # Move forward
             self.speed += self.acceleration
             if self.speed > self.max_speed:
                 self.speed = self.max_speed
-        if action == 1:  # Geri gitme
+        if action == 1:  # Move backward
             self.speed -= self.deceleration
             if self.speed < -self.max_speed / 2:
                 self.speed = -self.max_speed / 2
 
-        # Sürtünme
+        # Friction
         if self.speed > 0:
             self.speed -= self.friction
         elif self.speed < 0:
@@ -66,31 +71,31 @@ class Car:
         if abs(self.speed) < self.friction:
             self.speed = 0
 
-        # Dönme
+        # Steering
         if action == 2:
             self.angle += 8
         if action == 3:
             self.angle -= 8
 
-        # if action == 4:  # İleri sağa gitme
+        # if action == 4:  # Move forward right
         #     self.speed += self.acceleration
         #     self.angle += 5
         #     if self.speed > self.max_speed:
         #         self.speed = self.max_speed
         #
-        # if action == 5:  # İleri sola gitme
+        # if action == 5:  # Move forward left
         #     self.speed += self.acceleration
         #     self.angle -= 5
         #     if self.speed > self.max_speed:
         #         self.speed = self.max_speed
 
-        # if action == 6:  # SAĞ Geri gitme
+        # if action == 6:  # Move backward right
         #     self.speed -= self.deceleration
         #     self.angle += 3
         #     if self.speed < -self.max_speed / 2:
         #         self.speed = -self.max_speed / 2
         #
-        # if action == 7:  # Sol Geri gitme
+        # if action == 7:  # Move backward left
         #     self.speed -= self.deceleration
         #     self.angle -= 3
         #     if self.speed < -self.max_speed / 2:
@@ -99,17 +104,18 @@ class Car:
         if action == 4:
             pass
 
-        # Araba hareketi
+        # Move the car
         self.x += self.speed * math.cos(math.radians(self.angle))
         self.y += self.speed * math.sin(math.radians(self.angle))
 
-        # Collider pozisyonunu güncelle
+        # Update the collider position
         # self.rect.topleft = (self.x - self.car_width / 2, self.y - self.car_height / 2)
 
 
     def reset(self):
-        # Arabayı başlangıç konumuna döndür
+        # Reset the car to its initial position
         self.x = self.start_x
         self.y = self.start_y
         self.angle = self.start_angle
         self.speed = 0
+

@@ -4,12 +4,18 @@ from track_lines import handle_collision_with_lines
 
 
 class CarEnvironment:
-    def __init__(self, car, track_lines, reset_function,rays,score):
+    """
+    The CarEnvironment class is an environment for a car agent to learn on.
+    It contains the car and the track lines. The car is updated by giving an action to the step method.
+    The state of the car is the distances to the track lines and the speed and score of the car.
+    The reward is -1 for every step taken and increases by the score of the car when a lap is taken.
+    """
+    def __init__(self, car, track_lines, reset_function, rays, score):
         self.car = car
         self.track_lines = track_lines
         self.reset_function = reset_function
-        self.state_size = 13  # [ışınlar*14, hız,score,angle]
-        self.action_size = 5  # [ileri, geri, sağ, sol, sağ ileri, sol ileri, sağ geri, sol geri, hiçbiri]
+        self.state_size = 13  # [ray distances*14, speed, score, angle]
+        self.action_size = 5  # [forward, backward, turn right, turn left, nothing]
         self.pass_startline = False
         self.lap_flag = False
         self.rays = rays
@@ -30,10 +36,10 @@ class CarEnvironment:
             *ray_distances, normalized_speed, self.score])
 
     def step(self, action):
-        # Arabayı güncelle
-        self.car.update(action)  # Bu metodu `Car` sınıfına uygun şekilde değiştir
+        # Update the car
+        self.car.update(action)
 
-        # Çizgi çarpışmalarını kontrol et
+        # Check for collisions with the lines
         self.pass_startline, self.lap_flag = handle_collision_with_lines(
             self.car,
             self.track_lines.start_line_rect,
@@ -42,14 +48,13 @@ class CarEnvironment:
             self.pass_startline
         )
 
-        # self.reward = self.score*2
-        # Ödül hesapla
+        # Calculate the reward
         if self.lap_flag:
-            self.reward += 1000 # Tur tamamlandığında ödül
+            self.reward += 1000     # If the car completes a lap
 
-        # Oyunun bitip bitmediğini kontrol et
+        # Check if the game is over
         done = False
 
-        # Yeni durum döndür
+        # Return the new state
         state = self.get_state()
         return state, self.reward, done
