@@ -1,0 +1,5 @@
+torch~=2.5.1
+pygame~=2.6.0
+numpy~=1.26.4
+opencv-python~=4.11.0.86
+matplotlib~=3.9.2

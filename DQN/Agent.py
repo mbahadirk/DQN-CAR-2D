@@ -14,7 +14,7 @@ class DQNAgent:
         self.epsilon = 1.0  # Keşif oranı
         self.epsilon_min = 0.005
         self.epsilon_decay = 0.998
-        self.learning_rate = 0.01
+        self.learning_rate = 1e-6
         self.model = self.build_model()
         self.optimizer = optim.Adam(self.model.parameters(), lr=self.learning_rate)
 

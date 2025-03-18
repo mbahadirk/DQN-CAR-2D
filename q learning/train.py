@@ -97,9 +97,9 @@ def reset_agent(car, index, iteration):
     print(f"Car {index} reset at iteration {iteration}!")
 
 def save_q_tables():
-    # for i, q_table in enumerate(Q_tables):
-    #     with open(f"q_table_agent_{i}.pkl", "wb") as f:
-    #         pickle.dump(q_table, f)
+    for i, q_table in enumerate(Q_tables):
+        with open(f"q_table_agent_{i}.pkl", "wb") as f:
+            pickle.dump(q_table, f)
     print("Q-tables have been saved!")
 
 def load_q_tables():

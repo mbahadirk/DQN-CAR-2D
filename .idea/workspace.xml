@@ -4,13 +4,13 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="4d62ca8f-09a1-4087-9dcd-6ae6644a7c01" name="Changes" comment="DQN final">
+    <list default="true" id="4d62ca8f-09a1-4087-9dcd-6ae6644a7c01" name="Changes" comment="QLearning added">
+      <change afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CFG.py" beforeDir="false" afterPath="$PROJECT_DIR$/CFG.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/DQN/Agent.py" beforeDir="false" afterPath="$PROJECT_DIR$/DQN/Agent.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DQN/CarEnvironment.py" beforeDir="false" afterPath="$PROJECT_DIR$/DQN/CarEnvironment.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DQN/game.py" beforeDir="false" afterPath="$PROJECT_DIR$/DQN/game.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ray_list.py" beforeDir="false" afterPath="$PROJECT_DIR$/ray_list.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DQN/game.py" beforeDir="false" afterPath="$PROJECT_DIR$/DQN/train.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/q learning/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/q learning/train.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/q learning/training_results.csv" beforeDir="false" afterPath="$PROJECT_DIR$/q learning/training_results.csv" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/track_lines.py" beforeDir="false" afterPath="$PROJECT_DIR$/track_lines.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -62,8 +62,8 @@
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;com.codeium.enabled&quot;: &quot;true&quot;,
     &quot;git-widget-placeholder&quot;: &quot;experimental&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/pahstoner/PycharmProjects/DQN-CAR-2D&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;advanced.settings&quot;
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/pahstoner/Desktop/stable-diffusion-webui-master&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable&quot;
   }
 }</component>
   <component name="RecentsManager">
@@ -77,7 +77,7 @@
       <recent name="C:\Users\pahstoner\PycharmProjects\DQN-CAR-2D\images" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.game">
+  <component name="RunManager" selected="Python.train">
     <configuration name="game" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="car2d" />
       <option name="ENV_FILES" value="" />
@@ -144,28 +144,6 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="main (1)" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="car2d" />
-      <option name="ENV_FILES" value="" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/q learning" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/q learning/main.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
     <configuration name="train" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="car2d" />
       <option name="ENV_FILES" value="" />
@@ -188,11 +166,55 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+    <configuration name="train" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="car2d" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/DQN" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="C:\Users\pahstoner\PycharmProjects\DQN-CAR-2D\DQN\train.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="train" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="car2d" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/q learning" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="C:\Users\pahstoner\PycharmProjects\DQN-CAR-2D\q learning\train.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.game" />
         <item itemvalue="Python.train" />
-        <item itemvalue="Python.main (1)" />
+        <item itemvalue="Python.train" />
+        <item itemvalue="Python.train" />
         <item itemvalue="Python.generate_roads" />
         <item itemvalue="Python.generate_roads (1)" />
       </list>
@@ -270,7 +292,23 @@
       <option name="project" value="LOCAL" />
       <updated>1734358917106</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="QLearning added">
+      <option name="closed" value="true" />
+      <created>1734378902647</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1734378902647</updated>
+    </task>
+    <task id="LOCAL-00009" summary="QLearning added">
+      <option name="closed" value="true" />
+      <created>1734378986939</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1734378986939</updated>
+    </task>
+    <option name="localTasksCounter" value="10" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -308,6 +346,7 @@
     <MESSAGE value="start-finish lines added" />
     <MESSAGE value="DQN not completed" />
     <MESSAGE value="DQN final" />
-    <option name="LAST_COMMIT_MESSAGE" value="DQN final" />
+    <MESSAGE value="QLearning added" />
+    <option name="LAST_COMMIT_MESSAGE" value="QLearning added" />
   </component>
 </project>

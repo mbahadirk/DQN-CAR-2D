@@ -15,7 +15,7 @@ track_lines = TrackLines()
 from utilities.threshold import apply_threshold
 
 
-start_pos = (60, 400)
+start_pos = (60, 300)
 
 batch_size = 512
 tick_rate = 30
@@ -31,7 +31,7 @@ def reset_game():
 def start_training(car, rays, score, env, agent):
     # env = CarEnvironment(car, track_lines, reset_game, rays, score)
     # agent = DQNAgent(env.state_size, env.action_size)
-    episodes = 5
+    episodes = 10
 
     for e in range(episodes):
         state = env.reset()
