@@ -4,15 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="4d62ca8f-09a1-4087-9dcd-6ae6644a7c01" name="Changes" comment="QLearning added">
-      <change afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DQN/Agent.py" beforeDir="false" afterPath="$PROJECT_DIR$/DQN/Agent.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DQN/game.py" beforeDir="false" afterPath="$PROJECT_DIR$/DQN/train.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/q learning/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/q learning/train.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/q learning/training_results.csv" beforeDir="false" afterPath="$PROJECT_DIR$/q learning/training_results.csv" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/track_lines.py" beforeDir="false" afterPath="$PROJECT_DIR$/track_lines.py" afterDir="false" />
-    </list>
+    <list default="true" id="4d62ca8f-09a1-4087-9dcd-6ae6644a7c01" name="Changes" comment="minifix" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -308,7 +300,23 @@
       <option name="project" value="LOCAL" />
       <updated>1734378986939</updated>
     </task>
-    <option name="localTasksCounter" value="10" />
+    <task id="LOCAL-00010" summary="minifix">
+      <option name="closed" value="true" />
+      <created>1742282063685</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1742282063685</updated>
+    </task>
+    <task id="LOCAL-00011" summary="minifix">
+      <option name="closed" value="true" />
+      <created>1742282310044</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1742282310044</updated>
+    </task>
+    <option name="localTasksCounter" value="12" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -347,6 +355,7 @@
     <MESSAGE value="DQN not completed" />
     <MESSAGE value="DQN final" />
     <MESSAGE value="QLearning added" />
-    <option name="LAST_COMMIT_MESSAGE" value="QLearning added" />
+    <MESSAGE value="minifix" />
+    <option name="LAST_COMMIT_MESSAGE" value="minifix" />
   </component>
 </project>
