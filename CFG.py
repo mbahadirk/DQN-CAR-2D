@@ -8,7 +8,6 @@ P_YELLOW = (255, 255, 0)
 CAR_IMAGE_PATH = '../images/car.png'
 ROAD_IMAGE_PATH = "../images/track2.png"
 
-
 import pygame
 
 road_img = pygame.image.load(ROAD_IMAGE_PATH)

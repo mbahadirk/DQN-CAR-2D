@@ -10,30 +10,25 @@ class CarEnvironment:
     The state of the car is the distances to the track lines and the speed and score of the car.
     The reward is -1 for every step taken and increases by the score of the car when a lap is taken.
     """
-    def __init__(self, car, track_lines, reset_function, rays, score):
+    def __init__(self, car, track_lines, rays, score):
         self.car = car
         self.track_lines = track_lines
-        self.reset_function = reset_function
-        self.state_size = 13  # [ray distances*14, speed, score, angle]
-        self.action_size = 5  # [forward, backward, turn right, turn left, nothing]
+        self.state_size = 11  # [ray distances*14, speed, score, angle]
+        self.action_size = 3  # [forward, backward, turn right, turn left, nothing]
         self.pass_startline = False
         self.lap_flag = False
         self.rays = rays
         self.score = score
         self.reward = -1
 
-    def reset(self):
-        self.reset_function()
-        return self.get_state()
-
     def get_state(self):
         ray_distances = [ray.distance for ray in self.rays]
-        # ray_distances = np.array(ray_distances)
-        # ray_distances = ray_distances / np.max(ray_distances)
+        ray_distances = np.array(ray_distances)
+        ray_distances = ray_distances / 200
         # normalized_angle = self.car.angle / 360.0  # 0-1 aralığında
-        normalized_speed = self.car.speed / self.car.max_speed
+        # normalized_speed = self.car.speed / self.car.max_speed
         return np.array([
-            *ray_distances, normalized_speed, self.score])
+            *ray_distances,])# """normalized_speed"""""", self.score"""
 
     def step(self, action):
         # Update the car

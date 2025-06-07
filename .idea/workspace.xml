@@ -6,10 +6,20 @@
   <component name="ChangeListManager">
     <list default="true" id="4d62ca8f-09a1-4087-9dcd-6ae6644a7c01" name="Changes" comment="minifix">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CFG.py" beforeDir="false" afterPath="$PROJECT_DIR$/CFG.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/DQN/Agent.py" beforeDir="false" afterPath="$PROJECT_DIR$/DQN/Agent.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/DQN/CarEnvironment.py" beforeDir="false" afterPath="$PROJECT_DIR$/DQN/CarEnvironment.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/DQN/agentCar.py" beforeDir="false" afterPath="$PROJECT_DIR$/DQN/agentCar.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DQN/model_weights.pth" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/DQN/train.py" beforeDir="false" afterPath="$PROJECT_DIR$/DQN/train.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Q-Learning/train.py" beforeDir="false" afterPath="$PROJECT_DIR$/Q-Learning/train.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Q-Learning/training_results.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Q-Learning/training_results.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Simulation.py" beforeDir="false" afterPath="$PROJECT_DIR$/Simulation.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ray.py" beforeDir="false" afterPath="$PROJECT_DIR$/ray.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ray_list.py" beforeDir="false" afterPath="$PROJECT_DIR$/ray_list.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/road_points.txt" beforeDir="false" afterPath="$PROJECT_DIR$/road_points_track2.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/track_lines.py" beforeDir="false" afterPath="$PROJECT_DIR$/track_lines.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utilities/generate_roads.py" beforeDir="false" afterPath="$PROJECT_DIR$/utilities/generate_roads.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -31,6 +41,9 @@
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
   <component name="ProblemsViewState">
     <option name="selectedTabId" value="CurrentFile" />
   </component>
@@ -45,6 +58,7 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
+    "Python.Simulation.executor": "Run",
     "Python.car.executor": "Run",
     "Python.car_test.executor": "Run",
     "Python.game.executor": "Run",
@@ -55,6 +69,7 @@
     "Python.main_test.executor": "Run",
     "Python.test.executor": "Run",
     "Python.train (1).executor": "Run",
+    "Python.train (2).executor": "Run",
     "Python.train.executor": "Run",
     "Python.walls.executor": "Run",
     "RunOnceActivity.OpenProjectViewOnStart": "true",
@@ -71,13 +86,14 @@
       <recent name="C:\Users\pahstoner\PycharmProjects\car2d" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\pahstoner\PycharmProjects\DQN-CAR-2D" />
       <recent name="C:\Users\pahstoner\PycharmProjects\DQN-CAR-2D\utilities" />
       <recent name="C:\Users\pahstoner\PycharmProjects\DQN-CAR-2D\old_files" />
       <recent name="C:\Users\pahstoner\PycharmProjects\DQN-CAR-2D\images" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.train (1)">
-    <configuration name="game" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+  <component name="RunManager" selected="Python.train">
+    <configuration name="Simulation" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="car2d" />
       <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -86,11 +102,11 @@
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/DQN" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/DQN/game.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/Simulation.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -152,11 +168,11 @@
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/DQN" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/Q-Learning" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/DQN/train.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/Q-Learning/train.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -174,11 +190,11 @@
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/SARSA" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/DQN" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/SARSA/train.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/DQN/train.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -233,10 +249,10 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.train" />
         <item itemvalue="Python.train (1)" />
-        <item itemvalue="Python.train" />
-        <item itemvalue="Python.train" />
-        <item itemvalue="Python.train" />
+        <item itemvalue="Python.generate_roads (1)" />
+        <item itemvalue="Python.Simulation" />
         <item itemvalue="Python.generate_roads" />
       </list>
     </recent_temporary>
@@ -353,7 +369,15 @@
       <option name="project" value="LOCAL" />
       <updated>1742282428219</updated>
     </task>
-    <option name="localTasksCounter" value="13" />
+    <task id="LOCAL-00013" summary="minifix">
+      <option name="closed" value="true" />
+      <created>1742284864145</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1742284864145</updated>
+    </task>
+    <option name="localTasksCounter" value="14" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">

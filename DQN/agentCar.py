@@ -26,11 +26,11 @@ class Car:
         self.x = start_x
         self.y = start_y
         self.angle = start_angle
-        self.speed = 0
+        self.speed = 3
         self.acceleration = 0.5
         self.deceleration = 0.4
         self.max_speed = 3
-        self.friction = 0.05
+        self.friction = 0
 
         # Rectangle for collision detection
         self.rect = self.car_image.get_rect(center=(self.x, self.y))
@@ -54,14 +54,14 @@ class Car:
 
 
     def update(self, action):
-        if action == 0:  # Move forward
-            self.speed += self.acceleration
-            if self.speed > self.max_speed:
-                self.speed = self.max_speed
-        if action == 1:  # Move backward
-            self.speed -= self.deceleration
-            if self.speed < -self.max_speed / 2:
-                self.speed = -self.max_speed / 2
+        # if action == 0:  # Move forward
+        #     self.speed += self.acceleration
+        #     if self.speed > self.max_speed:
+        #         self.speed = self.max_speed
+        # if action == 1:  # Move backward
+        #     self.speed -= self.deceleration
+        #     if self.speed < -self.max_speed / 2:
+        #         self.speed = -self.max_speed / 2
 
         # Friction
         if self.speed > 0:
@@ -72,9 +72,9 @@ class Car:
             self.speed = 0
 
         # Steering
-        if action == 2:
+        if action == 0:
             self.angle += 8
-        if action == 3:
+        if action == 1:
             self.angle -= 8
 
         # if action == 4:  # Move forward right
@@ -101,7 +101,7 @@ class Car:
         #     if self.speed < -self.max_speed / 2:
         #         self.speed = -self.max_speed / 2
 
-        if action == 4:
+        if action == 2:
             pass
 
         # Move the car

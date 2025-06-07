@@ -5,14 +5,23 @@ import pygame
 
 class TrackLines:
     def __init__(self):
-        self.start_line = (15, 270, 100, 10)
+        self.start_line = (20, 270, 130, 10)
         self.start_line_rect = pygame.Rect(*self.start_line)
 
         self.mid_line = (830, 400, 130, 10)
         self.mid_line_rect = pygame.Rect(*self.mid_line)
 
-        self.blue_line = (15, 300, 100, 10)
+        self.blue_line = (20, 300, 130, 10)
         self.blue_line_rect = pygame.Rect(*self.blue_line)
+
+        self.reward_line_1 = (200, 450, 10, 100)
+        self.reward_line_1_rect = pygame.Rect(*self.reward_line_1)
+
+        self.reward_line_2 = (600, 470, 10, 100)
+        self.reward_line_2_rect = pygame.Rect(*self.reward_line_2)
+
+        self.reward_line_3 = (800, 400, 130, 10)
+        self.reward_line_3_rect = pygame.Rect(*self.reward_line_3)
 
 
 def handle_collision_with_lines(car, start_line_rect, mid_line_rect, blue_line_rect,pass_startline):
@@ -34,4 +43,7 @@ def handle_collision_with_lines(car, start_line_rect, mid_line_rect, blue_line_r
             # print("startline passed. now its not passable")
             pass_startline = False
             return pass_startline, True
+
     return pass_startline, False
+
+

@@ -61,8 +61,8 @@ def save_road_points(road_points, filepath):
 
 if __name__ == "__main__":
     # Resim yolu ve çıkış dosyası
-    image_path = f'{ROAD_IMAGE_PATH}' # Yol resmi
-    output_file = "road_points.txt"
+    image_path = '../images/track_basic.png'   # Yol resmi
+    output_file = "../road_points_road_basic.txt"
 
     # Yol konturunu al
     try:

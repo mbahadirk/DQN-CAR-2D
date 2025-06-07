@@ -9,7 +9,7 @@ class Ray:
         self.name = name
         self.distance = 0  # Çarpma mesafesi.
 
-    def draw_beam(self, pos, car_angle, flipped_masks, beam_surface, threshold_mask):
+    def draw_beam(self, pos, car_angle, flipped_masks, beam_surface, threshold_mask, max_distance=200):
         adjusted_angle = self.angle + car_angle
         c = math.cos(math.radians(adjusted_angle))
         s = math.sin(math.radians(adjusted_angle))
@@ -36,3 +36,6 @@ class Ray:
             pygame.draw.line(self.surface, (0, 0, 255), pos, hit_pos)
             pygame.draw.circle(self.surface, (0, 255, 0), hit_pos, 3)
             self.distance = math.sqrt((hit_pos[0] - pos[0]) ** 2 + (hit_pos[1] - pos[1]) ** 2)
+        else:
+            self.distance = max_distance
+
