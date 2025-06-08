@@ -1,32 +1,35 @@
-from datetime import datetime
 import numpy as np
 import pygame
 import torch
 
 from DQN.Agent import DQNAgent
 from DQN.CarEnvironment import CarEnvironment
-from agentCar import Car
+from DQN.agentCar import Car
 from ray_list import create_rays
 from track_lines import TrackLines, handle_collision_with_lines
 from utilities.reorder_road_points import reorder_road_points
 from utilities.road_utils import find_closest_point, load_road_points, calculate_distance_from_start
 from utilities.threshold import apply_threshold
-from weightVisualizer import WeightVisualizer
-
+from DQN.weightVisualizer import WeightVisualizer
 
 track_lines = TrackLines()
 
-start_pos = (250, 500)
+start_pos = (80, 300)
 
 batch_size = 64
 tick_rate = 30
+
+
+def apply_collision_penalty(env):
+    base_penalty = -500
+    env.reward = base_penalty
 
 
 def reset_game(env):
     global car, track_lines
     car.x, car.y = start_pos[0], start_pos[1]
     car.speed = 3
-    car.angle = 0
+    car.angle = 90
     track_lines = TrackLines()
     env.reward = 0
 
@@ -59,7 +62,7 @@ def update_score_display(car_pos, road_points, window):
 
 
 
-car = Car('../images/car.png', scale_factor=0.1, start_x=start_pos[0], start_y=start_pos[1], start_angle=0)
+car = Car('../images/car.png', scale_factor=0.1, start_x=start_pos[0], start_y=start_pos[1], start_angle=90)
 
 
 def main():
@@ -87,14 +90,15 @@ def main():
     road_points = reorder_road_points(start_pos, road_points)[:-2]
 
     env = CarEnvironment(car, track_lines, rays, 0)
-    agent = DQNAgent(env.state_size, env.action_size, learning_rate=0.01, epsilon=1.0,
-                     epsilon_min=0.01, epsilon_decay=0.9999, buffer_size=5000)
+    agent = DQNAgent(env.state_size, env.action_size, learning_rate=0.01, epsilon=0.01,
+                     epsilon_min=0.01, epsilon_decay=0.999, buffer_size=1000)
     visualizer = WeightVisualizer(agent.model, use_cv2=True)
 
+    agent.model.load_state_dict(torch.load("model_weights.pth"))
+    agent.model.eval()
+    agent.epsilon = 0.05
     # Training parameters
-    collision_penalty = -50
-    best_score = 0
-    gamma = 0.5
+    gamma = 0.2
     gen = 0
     frame = 0
     pass_startline = False
@@ -103,19 +107,6 @@ def main():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
-
-            elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_p:
-                    print("Game manually stopped!")
-                    env.reward -= 100
-                    env.done = True
-                    reset_game(env)
-                    env.reward = 0
-
-                elif event.key == pygame.K_s:
-                    now = datetime.now()
-                    torch.save(agent.model.state_dict(), f"model_weights_{now.month:02d}{now.day:02d}_{now.hour:02d}{now.minute:02d}.pth")
-                    print('Model saved.')
 
         keys = pygame.key.get_pressed()
         car.update(keys)
@@ -129,9 +120,7 @@ def main():
 
         for ray in rays:
             ray.draw_beam(car_pos, car.angle, flipped_masks, beam_surface, threshold_mask)
-            if ray.distance < ray.dangerous_distance:
-                red_penalty = ray.dangerous_distance - ray.distance
-                env.reward -= 0.08 * red_penalty
+
         # Collision detection
         car_mask = pygame.mask.from_surface(car.car_image)
         car_offset = (int(car.x - car.rect.width / 2), int(car.y - car.rect.height / 2))
@@ -142,10 +131,6 @@ def main():
         state = env.get_state()
         action = agent.act(state)
 
-        # penalty for jittery movement
-        if action == 0 or 1:
-            env.reward -= 0.1
-
         # Yeni: Ödül hesapla
         new_score = update_score_display(car_pos, road_points, window)
 
@@ -153,46 +138,38 @@ def main():
         pass_startline, _ = handle_collision_with_lines(
             car, track_lines.start_line_rect, track_lines.mid_line_rect,
             track_lines.blue_line_rect, pass_startline, )
-
         car_rect = car.car_image.get_rect(center=(car.x, car.y))
         if car_rect.colliderect(track_lines.reward_line_1_rect):
             track_lines.reward_line_1_rect = (0, 0, 0, 0)
             env.reward += 200
             print("reward line 1 passed")
-        elif car_rect.colliderect(track_lines.reward_line_2_rect):
+        if car_rect.colliderect(track_lines.reward_line_2_rect):
             track_lines.reward_line_2_rect = (0, 0, 0, 0)
             env.reward += 300
             print("reward line 2 passed")
-        elif car_rect.colliderect(track_lines.reward_line_3_rect):
+        if car_rect.colliderect(track_lines.reward_line_3_rect):
             track_lines.reward_line_3_rect = (0, 0, 0, 0)
             env.reward += 500
             print("reward line 3 passed")
-        elif car_rect.colliderect(track_lines.reward_line_4_rect):
-            track_lines.reward_line_4_rect = (0, 0, 0, 0)
-            env.reward += 700
-            print("reward line 4 passed")
+
 
         if collision:
             print("Collision detected with the road.")
-            env.reward = collision_penalty
-            agent.step(state, action, env.reward, next_state, True)
+            env.reward = -50
+            # agent.step(state, action, env.reward, next_state, True)  # Öğrenmeye uygula
             reset_game(env)
             new_score, env.score = 0, 0
 
         else:
             progress = new_score - env.score
-            env.reward += progress * 3
+            env.reward += progress * 1
             env.score = new_score
 
-            if env.reward > best_score:
-                best_score = env.reward
-                collision_penalty *= 1 + best_score / 50000
-
-            next_state, reward, done = env.step(action)
+            next_state, reward, done = env.step(action)  # reward parametresi kullanılmıyor
             next_state = np.array(next_state, dtype=np.float32)
-            agent.step(state, action, env.reward, next_state, done)
-            if len(agent.replay_buffer) > batch_size:
-                agent.replay(batch_size)
+            # agent.step(state, action, env.reward, next_state, done)
+            # if len(agent.replay_buffer) > batch_size:
+            #     agent.replay(batch_size)
 
         # Draw GUI elements
         score = update_score_display(car_pos, road_points, window)
@@ -207,7 +184,6 @@ def main():
         pygame.draw.rect(window, (120, 180, 120), track_lines.reward_line_1_rect)
         pygame.draw.rect(window, (120, 180, 120), track_lines.reward_line_2_rect)
         pygame.draw.rect(window, (120, 180, 120), track_lines.reward_line_3_rect)
-        pygame.draw.rect(window, (120, 180, 120), track_lines.reward_line_4_rect)
 
         car.draw(window)
         pygame.display.update()

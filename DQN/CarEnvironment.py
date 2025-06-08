@@ -13,22 +13,21 @@ class CarEnvironment:
     def __init__(self, car, track_lines, rays, score):
         self.car = car
         self.track_lines = track_lines
-        self.state_size = 11  # [ray distances*14, speed, score, angle]
+        self.state_size = 13  # [ray distances*14, speed, score, angle]
         self.action_size = 3  # [forward, backward, turn right, turn left, nothing]
         self.pass_startline = False
         self.lap_flag = False
         self.rays = rays
         self.score = score
-        self.reward = -1
+        self.reward = 0
 
     def get_state(self):
         ray_distances = [ray.distance for ray in self.rays]
         ray_distances = np.array(ray_distances)
         ray_distances = ray_distances / 200
-        # normalized_angle = self.car.angle / 360.0  # 0-1 aralığında
-        # normalized_speed = self.car.speed / self.car.max_speed
-        return np.array([
-            *ray_distances,])# """normalized_speed"""""", self.score"""
+        normalized_angle = self.car.angle / 360.0  # 0-1 aralığında
+        normalized_speed = self.car.speed / self.car.max_speed
+        return np.concatenate([ray_distances, [normalized_angle, normalized_speed]])
 
     def step(self, action):
         # Update the car

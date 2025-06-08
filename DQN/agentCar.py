@@ -43,7 +43,6 @@ class Car:
         rect = rotated_car.get_rect(center=(self.x, self.y))
         surface.blit(rotated_car, rect.topleft)
 
-        # Semi-transparent red rectangle (collider)
 
         collider_surface = pygame.Surface((self.rect.width, self.rect.height), pygame.SRCALPHA)
         # pygame.draw.rect(collider_surface, (127,0,0), collider_surface.get_rect())  # Semi-transparent red

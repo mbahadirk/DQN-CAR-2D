@@ -33,7 +33,7 @@ beam_surface = pygame.Surface((200, 200), pygame.SRCALPHA)
 
 start_pos = (60, 300)
 car = Car(car_image_path, scale_factor=0.1,start_x=start_pos[0], start_y=start_pos[1], start_angle=90)
-road_points = load_road_points("road_points_track2.txt")
+road_points = load_road_points("road_points/road_points_track2.txt")
 road_points = reorder_road_points(start_pos, road_points)
 
 

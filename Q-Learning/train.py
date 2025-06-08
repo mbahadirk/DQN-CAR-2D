@@ -34,7 +34,7 @@ beam_surface = pygame.Surface((WINDOW_SIZE[0], WINDOW_SIZE[1]), pygame.SRCALPHA)
 
 # Başlangıç konumları ve yolu yükle
 start_pos = (60, 300)
-road_points = load_road_points("../road_points_track2.txt")
+road_points = load_road_points("../road_points/road_points_track2.txt")
 road_points = reorder_road_points(start_pos, road_points)
 
 # Çoklu Ajan Yapılandırması

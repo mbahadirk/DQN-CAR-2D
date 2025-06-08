@@ -8,6 +8,7 @@ class Ray:
         self.surface = surface
         self.name = name
         self.distance = 0  # Çarpma mesafesi.
+        self.dangerous_distance = 50
 
     def draw_beam(self, pos, car_angle, flipped_masks, beam_surface, threshold_mask, max_distance=200):
         adjusted_angle = self.angle + car_angle
@@ -32,8 +33,10 @@ class Ray:
             hx = threshold_mask.get_size()[0] - 1 - hit[0] if flip_x else hit[0]
             hy = threshold_mask.get_size()[1] - 1 - hit[1] if flip_y else hit[1]
             hit_pos = (hx, hy)
-
-            pygame.draw.line(self.surface, (0, 0, 255), pos, hit_pos)
+            if self.distance < self.dangerous_distance:
+                pygame.draw.line(self.surface, (255, 0, 0), pos, hit_pos)
+            else:
+                pygame.draw.line(self.surface, (0, 0, 255), pos, hit_pos)
             pygame.draw.circle(self.surface, (0, 255, 0), hit_pos, 3)
             self.distance = math.sqrt((hit_pos[0] - pos[0]) ** 2 + (hit_pos[1] - pos[1]) ** 2)
         else:

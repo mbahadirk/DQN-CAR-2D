@@ -5,23 +5,49 @@ import pygame
 
 class TrackLines:
     def __init__(self):
-        self.start_line = (20, 270, 130, 10)
+        # its for game start with curve
+        # self.start_line = (20, 270, 130, 10)
+        # self.start_line_rect = pygame.Rect(*self.start_line)
+        #
+        # self.mid_line = (830, 400, 130, 10)
+        # self.mid_line_rect = pygame.Rect(*self.mid_line)
+        #
+        # self.blue_line = (20, 300, 130, 10)
+        # self.blue_line_rect = pygame.Rect(*self.blue_line)
+        #
+        # self.reward_line_1 = (200, 500, 10, 30)
+        # self.reward_line_1_rect = pygame.Rect(*self.reward_line_1)
+        #
+        # self.reward_line_2 = (600, 500, 10, 30)
+        # self.reward_line_2_rect = pygame.Rect(*self.reward_line_2)
+        #
+        # self.reward_line_3 = (900, 400, 40, 10)
+        # self.reward_line_3_rect = pygame.Rect(*self.reward_line_3)
+        #
+        # self.reward_line_4 = (900, 250, 40, 10)
+        # self.reward_line_4_rect = pygame.Rect(*self.reward_line_4)
+
+
+        self.start_line = (200, 450, 10, 120)
         self.start_line_rect = pygame.Rect(*self.start_line)
 
-        self.mid_line = (830, 400, 130, 10)
+        self.mid_line = (500, 15, 10, 120)
         self.mid_line_rect = pygame.Rect(*self.mid_line)
 
-        self.blue_line = (20, 300, 130, 10)
+        self.blue_line = (220, 450, 10, 120)
         self.blue_line_rect = pygame.Rect(*self.blue_line)
 
-        self.reward_line_1 = (200, 450, 10, 100)
+        self.reward_line_1 = (600, 500, 10, 40)
         self.reward_line_1_rect = pygame.Rect(*self.reward_line_1)
 
-        self.reward_line_2 = (600, 470, 10, 100)
+        self.reward_line_2 = (900, 250, 30, 10)
         self.reward_line_2_rect = pygame.Rect(*self.reward_line_2)
 
-        self.reward_line_3 = (800, 400, 130, 10)
+        self.reward_line_3 = (900, 400, 40, 10)
         self.reward_line_3_rect = pygame.Rect(*self.reward_line_3)
+
+        self.reward_line_4 = (200, 80, 10, 30)
+        self.reward_line_4_rect = pygame.Rect(*self.reward_line_4)
 
 
 def handle_collision_with_lines(car, start_line_rect, mid_line_rect, blue_line_rect,pass_startline):

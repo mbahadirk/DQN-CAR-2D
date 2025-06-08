@@ -1,5 +1,6 @@
 import math
 
+
 def find_closest_point(car_pos, road_points):
     """
     Arabanın konumuna en yakın yol noktasını bulur.

@@ -7,7 +7,7 @@ import torch.nn.functional as F
 
 
 class DQNAgent:
-    def __init__(self, state_size, action_size, buffer_size=350, epsilon=1.0, epsilon_min=0.01, epsilon_decay=0.9995, learning_rate=0.01):
+    def __init__(self, state_size, action_size, buffer_size=500, epsilon=1.0, epsilon_min=0.01, epsilon_decay=0.9995, learning_rate=0.01):
         self.state_size = state_size
         self.action_size = action_size
         self.epsilon = epsilon
@@ -25,9 +25,9 @@ class DQNAgent:
 
     def _build_model(self):
         return torch.nn.Sequential(
-            torch.nn.Linear(self.state_size, 64),
+            torch.nn.Linear(self.state_size, 128),
             torch.nn.ReLU(),
-            torch.nn.Linear(64, 32),
+            torch.nn.Linear(128, 32),
             torch.nn.ReLU(),
             torch.nn.Linear(32, self.action_size),
         )
@@ -60,7 +60,7 @@ class DQNAgent:
                 target = reward + self.gamma * next_q
 
             current_q = self.model(torch.FloatTensor(state)).squeeze(0)[action]
-            loss = F.mse_loss(current_q, torch.tensor(target))
+            loss = F.mse_loss(current_q, torch.tensor(target, dtype=torch.float32))
 
             self.optimizer.zero_grad()
             loss.backward()
