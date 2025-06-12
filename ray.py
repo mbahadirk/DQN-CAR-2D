@@ -8,7 +8,7 @@ class Ray:
         self.surface = surface
         self.name = name
         self.distance = 0  # Çarpma mesafesi.
-        self.dangerous_distance = 50
+        self.dangerous_distance = 40
 
     def draw_beam(self, pos, car_angle, flipped_masks, beam_surface, threshold_mask, max_distance=200):
         adjusted_angle = self.angle + car_angle

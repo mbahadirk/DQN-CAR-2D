@@ -9,7 +9,7 @@ class Car:
         The car has a position, an angle, a speed, an acceleration and a deceleration.
         The car can be drawn on a surface and can be moved.
     """
-    def __init__(self, image_path, scale_factor=0.001, start_x=100, start_y=100, start_angle=0):
+    def __init__(self, image_path="../images/car.png", scale_factor=0.1, start_x=100, start_y=100, start_angle=0):
         self.car_img = pygame.image.load(image_path)
         self.scale_factor = scale_factor
 
@@ -29,8 +29,10 @@ class Car:
         self.speed = 3
         self.acceleration = 0.5
         self.deceleration = 0.4
-        self.max_speed = 3
+        self.max_speed = 5
         self.friction = 0
+
+        self.name = "Car"
 
         # Rectangle for collision detection
         self.rect = self.car_image.get_rect(center=(self.x, self.y))
@@ -50,16 +52,23 @@ class Car:
         collider_rect = rotated_collider.get_rect(center=rect.center)
         surface.blit(rotated_collider, collider_rect.topleft)
 
+        # Draw the car's name above the car
+        font = pygame.font.SysFont(None, 24)
+        name_text = font.render(self.name, True, (100, 100, 220))
+        text_rect = name_text.get_rect(center=(self.x, self.y - rect.height / 2 - 10))
+        surface.blit(name_text, text_rect.topleft)
+
 
     def update(self, action):
-        # if action == 0:  # Move forward
-        #     self.speed += self.acceleration
-        #     if self.speed > self.max_speed:
-        #         self.speed = self.max_speed
-        # if action == 1:  # Move backward
-        #     self.speed -= self.deceleration
-        #     if self.speed < -self.max_speed / 2:
-        #         self.speed = -self.max_speed / 2
+        if action == 0:  # Move forward
+            self.speed += self.acceleration
+            if self.speed > self.max_speed:
+                self.speed = self.max_speed
+        if action == 1:  # Move backward
+            self.speed -= self.deceleration
+            if self.speed <=0: self.speed = 0
+            # if self.speed < -self.max_speed / 2:
+            #     self.speed = -self.max_speed / 2
 
         # Friction
         if self.speed > 0:
@@ -70,9 +79,9 @@ class Car:
             self.speed = 0
 
         # Steering
-        if action == 0:
+        if action == 2:
             self.angle += 8
-        if action == 1:
+        if action == 3:
             self.angle -= 8
 
         # if action == 4:  # Move forward right
@@ -99,7 +108,7 @@ class Car:
         #     if self.speed < -self.max_speed / 2:
         #         self.speed = -self.max_speed / 2
 
-        if action == 2:
+        if action == 4:
             pass
 
         # Move the car

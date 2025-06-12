@@ -25,11 +25,11 @@ class DQNAgent:
 
     def _build_model(self):
         return torch.nn.Sequential(
-            torch.nn.Linear(self.state_size, 128),
+            torch.nn.Linear(self.state_size, 8),
             torch.nn.ReLU(),
-            torch.nn.Linear(128, 32),
+            torch.nn.Linear(8, 4),
             torch.nn.ReLU(),
-            torch.nn.Linear(32, self.action_size),
+            torch.nn.Linear(4, self.action_size),
         )
 
     def act(self, state):
