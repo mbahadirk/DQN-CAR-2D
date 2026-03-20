@@ -13,8 +13,8 @@ class CarEnvironment:
     def __init__(self, car, track_lines, rays, score):
         self.car = car
         self.track_lines = track_lines
-        self.state_size = 9  # [ray distances*14, speed, score, angle]
-        self.action_size = 5  # [forward, backward, turn right, turn left, nothing]
+        self.state_size = 7  # [ray distances * 5, angle, speed]
+        self.action_size = 3  # [turn right, turn left, go straight]
         self.pass_startline = False
         self.lap_flag = False
         self.rays = rays
