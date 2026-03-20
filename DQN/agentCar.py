@@ -72,34 +72,9 @@ class Car:
         # Steering
         if action == 0:
             self.angle += 8
-        if action == 1:
+        elif action == 1:
             self.angle -= 8
-
-        # if action == 4:  # Move forward right
-        #     self.speed += self.acceleration
-        #     self.angle += 5
-        #     if self.speed > self.max_speed:
-        #         self.speed = self.max_speed
-        #
-        # if action == 5:  # Move forward left
-        #     self.speed += self.acceleration
-        #     self.angle -= 5
-        #     if self.speed > self.max_speed:
-        #         self.speed = self.max_speed
-
-        # if action == 6:  # Move backward right
-        #     self.speed -= self.deceleration
-        #     self.angle += 3
-        #     if self.speed < -self.max_speed / 2:
-        #         self.speed = -self.max_speed / 2
-        #
-        # if action == 7:  # Move backward left
-        #     self.speed -= self.deceleration
-        #     self.angle -= 3
-        #     if self.speed < -self.max_speed / 2:
-        #         self.speed = -self.max_speed / 2
-
-        if action == 2:
+        elif action == 2:
             pass
 
         # Move the car
