@@ -29,7 +29,7 @@ class Car:
         self.speed = 3
         self.acceleration = 0.5
         self.deceleration = 0.4
-        self.max_speed = 8
+        self.max_speed = 15
         self.friction = 0
 
         self.name = "Car"

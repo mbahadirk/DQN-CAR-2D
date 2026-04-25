@@ -1,5 +1,7 @@
 import copy
+import json
 import math
+import os
 
 import pygame
 import torch
@@ -9,7 +11,7 @@ from Agent import DQNAgent
 from CarEnvironment import CarEnvironment
 from agentCar import Car
 from ray_list import create_rays
-from track_lines import TrackLines
+from track_lines import TrackLines, road_points_path_from_image, start_pos_from_image, start_angle_from_image
 from utilities.reorder_road_points import reorder_road_points
 from utilities.road_utils import find_closest_point, load_road_points, calculate_distance_from_start
 from utilities.threshold import apply_threshold
@@ -30,21 +32,33 @@ N_PARENTS = 2           # bir sonraki nesli üretmek için kullanılan en iyi aj
 SPEED_TARGET = 3.5      # bu hızın altında kalmak slow_frames sayacını artırır
 JITTER_PENALTY = 0.4    # fitness'tan düşülecek miktar (her yön değiştirmede)
 SLOW_PENALTY   = 0.03   # fitness'tan düşülecek miktar (her yavaş frame'de)
+BACKWARD_PENALTY = 0.15  # geriye gidilen her frame için fitness ve reward cezası
 WALL_PENALTY_SCALE  = 0.0003  # tehlikeli ray başına frame başına ceza
 CORNER_BONUS_SCALE  = 0.25    # aktif viraj + ilerleme başına bonus
 CORNER_ANGLE_THRESHOLD = 2.0  # bir frame'de bu kadar derece dönüş = viraj sayılır
+# Kaç ard ardına backward frame sonra ajan öldürülsün (None = öldürme)
+BACKWARD_KILL_FRAMES = 90     # ~3 saniye geri giderse öldür
+SPEED_BONUS_THRESHOLD = 10    # Bu hızın üzerinde ekstra ödül başlar
+SPEED_BONUS_SCALE = 0.1       # Eşik üzerindeki her birim hız için frame başına bonus
 
 # --- Parkur konfigürasyonu ---
-# Farklı parkurda eğitim için bu iki satırı değiştir:
-TRACK_IMAGE      = '../images/track2.png'
-ROAD_POINTS_FILE = '../road_points/road_points_track2.txt'
+# Sadece bu satırı değiştir; road_points ve lines JSON otomatik bulunur:
+TRACK_IMAGE = '../images/hard_track_2.png'
 
 # Önceki eğitimden devam etmek için en iyi modelin yolunu gir.
 # None → sıfırdan başla, 'models/best_model.pt' → kaydedilmiş modelden başla.
 SEED_MODEL = "models/best_model.pt" #None
 
+# TRACK_IMAGE'den otomatik türetilen yollar (değiştirme)
+ROAD_POINTS_FILE = road_points_path_from_image(TRACK_IMAGE, __file__)
+START_POS        = start_pos_from_image(TRACK_IMAGE, __file__, default=(280, 530))
+START_ANGLE      = start_angle_from_image(TRACK_IMAGE, __file__, default=0.0)
+print(f"[Config] Track : {TRACK_IMAGE}")
+print(f"[Config] Points: {ROAD_POINTS_FILE}")
+print(f"[Config] Start : {START_POS}, angle={START_ANGLE}")
 
-car_list = [Car(start_x=START_POS[0], start_y=START_POS[1]) for _ in range(POPULATION)]
+
+car_list = [Car(start_x=START_POS[0], start_y=START_POS[1], start_angle=START_ANGLE) for _ in range(POPULATION)]
 
 
 class AGENT:
@@ -63,12 +77,16 @@ class AGENT:
         self.wall_proximity_penalty = 0.0  # duvara yakınlık birikimli ceza
         self.corner_bonus = 0.0            # viraj bonusu
         self.prev_angle = car.angle        # bir önceki frame açısı
+        self.backward_frames = 0           # ard ardına geriye gitme frame sayısı
+        self.backward_penalty = 0.0        # birikimli geriye gitme cezası
+        self.line_bonus = 0.0              # toplanan çizgilerin fitness bonusu
+        self.speed_bonus = 0.0             # yüksek hızda seyretme bonusu
 
 
 def reset_agent(agent):
     agent.car.x, agent.car.y = START_POS
     agent.car.speed = 3
-    agent.car.angle = 0
+    agent.car.angle = START_ANGLE
     agent.env.reward = 0
     agent.env.score = 0
     agent.env.pass_startline = False
@@ -84,6 +102,10 @@ def reset_agent(agent):
     agent.wall_proximity_penalty = 0.0
     agent.corner_bonus = 0.0
     agent.prev_angle = agent.car.angle
+    agent.backward_frames = 0
+    agent.backward_penalty = 0.0
+    agent.line_bonus = 0.0
+    agent.speed_bonus = 0.0
 
 
 def stop_dead_agent(agent):
@@ -193,14 +215,28 @@ def update_distance(car_pos, road_points):
 
 def main():
     pygame.init()
-    win_size = (1000, 600)
-    window = pygame.display.set_mode(win_size)
     clock = pygame.time.Clock()
     pygame.display.set_caption("Self Driving Car - Genetic Algorithm")
 
-    road_image = pygame.image.load(TRACK_IMAGE).convert_alpha()
+    # Boyutu almak için önce raw yükle, display'i aç, sonra convert et
+    _raw = pygame.image.load(TRACK_IMAGE)
+    win_size = _raw.get_size()
+    window = pygame.display.set_mode(win_size)
+    road_image = _raw.convert_alpha()
+
+    # threshold_image: SRCALPHA — duvar=opak, yol=şeffaf (collision mask için)
     threshold_image = apply_threshold(road_image)
     threshold_mask = pygame.mask.from_surface(threshold_image)
+
+    # display_surface: tam opak — yol=siyah, duvar=yeşil (ekran render için)
+    import numpy as _np
+    _alpha = pygame.surfarray.array_alpha(threshold_image)   # (W,H)
+    _wall  = _alpha > 127
+    display_surface = pygame.Surface(win_size)
+    display_surface.fill((0, 0, 0))
+    _rgb = pygame.surfarray.pixels3d(display_surface)
+    _rgb[_wall] = [45, 80, 45]
+    del _rgb, _alpha, _wall
 
     mask_fx = pygame.mask.from_surface(pygame.transform.flip(threshold_image, True, False))
     mask_fy = pygame.mask.from_surface(pygame.transform.flip(threshold_image, False, True))
@@ -209,12 +245,36 @@ def main():
 
     beam_surface = pygame.Surface((200, 200), pygame.SRCALPHA)
 
-    road_points = load_road_points(ROAD_POINTS_FILE)
-    road_points = reorder_road_points(START_POS, road_points)[:-2]
-    max_pts = len(road_points)  # bir tam turun road-point sayısı
-
     rays = create_rays(window)
-    track_lines = TrackLines()
+    track_lines = TrackLines.from_track_image(TRACK_IMAGE, __file__)
+
+    # Referans noktası: start_line merkezi, sürüş yönünün tersine 40px geride
+    _sl = track_lines.start_line_rect
+    _sl_cx = _sl.x + _sl.w / 2
+    _sl_cy = _sl.y + _sl.h / 2
+    _behind_x = _sl_cx - math.cos(math.radians(START_ANGLE)) * 40
+    _behind_y = _sl_cy - math.sin(math.radians(START_ANGLE)) * 40
+    _ref_pos = (int(_behind_x), int(_behind_y))
+
+    road_points = load_road_points(ROAD_POINTS_FILE)
+    road_points = reorder_road_points(_ref_pos, road_points)[:-2]
+    # Yön düzeltmesi: road_points[0]→[1] yönü START_ANGLE ile 90°'den fazla uyuşmuyorsa ters çevir
+    if len(road_points) >= 2:
+        dx = road_points[1][0] - road_points[0][0]
+        dy = road_points[1][1] - road_points[0][1]
+        road_dir = math.degrees(math.atan2(dy, dx))
+        if abs((road_dir - START_ANGLE + 180) % 360 - 180) > 90:
+            road_points = road_points[::-1]
+    # Liste sonundaki noktaları kırp: ref_pos'a 80px'den yakınsa
+    # find_closest_point yanlış yüksek index döndürür → cumulative patlar
+    while len(road_points) > 20:
+        lx, ly = road_points[-1]
+        if math.hypot(lx - _ref_pos[0], ly - _ref_pos[1]) < 80:
+            road_points = road_points[:-1]
+        else:
+            break
+    print(f"[Config] Road points: {len(road_points)}")
+    max_pts = len(road_points)
 
     # Pre-render road points once to a surface — avoid 250 draw.circle calls per frame
     road_surface = pygame.Surface(win_size, pygame.SRCALPHA)
@@ -261,8 +321,7 @@ def main():
             for ag in agent_list:
                 ag.agent.epsilon = global_epsilon
 
-        window.fill((0, 0, 0))
-        window.blit(threshold_image, threshold_image.get_rect(center=window.get_rect().center))
+        window.blit(display_surface, (0, 0))
 
         for agent in list(agent_list):
             car_pos = (agent.car.x, agent.car.y)
@@ -302,6 +361,13 @@ def main():
             # Yavaşlık tespiti
             if agent.car.speed < SPEED_TARGET:
                 agent.slow_frames += 1
+            
+            # Hız bonusu (Speed > 10)
+            if agent.car.speed > SPEED_BONUS_THRESHOLD:
+                extra_speed = agent.car.speed - SPEED_BONUS_THRESHOLD
+                current_speed_reward = extra_speed * SPEED_BONUS_SCALE
+                agent.speed_bonus += current_speed_reward
+                agent.env.reward += current_speed_reward
 
             distance_score = update_distance(car_pos, road_points)
             # Birikimli mesafe: tur sınırında sıfırlanmaz, fitness doğru kalır
@@ -317,15 +383,14 @@ def main():
 
             # Per-ajan reward line bonusları — rect'ler silinmez, her ajan kendi flag'ini tutar
             car_rect = agent.car.car_image.get_rect(center=(agent.car.x, agent.car.y))
-            for line_rect, idx, bonus in (
-                (track_lines.reward_line_1_rect, 0,  50),
-                (track_lines.reward_line_2_rect, 1, 100),
-                (track_lines.reward_line_3_rect, 2, 200),
-                (track_lines.reward_line_4_rect, 3, 200),
+            for idx, (line_rect, bonus) in enumerate(
+                (r, 50 * (i + 1)) for i, r in enumerate(track_lines.reward_rects)
             ):
                 if idx not in agent.collected_rewards and car_rect.colliderect(line_rect):
                     agent.collected_rewards.add(idx)
                     agent.env.reward += bonus
+                    agent.line_bonus += bonus  # Fitness hesaplaması için ekle
+                    car_name = getattr(agent.car, "name", f"Car?")
 
             # İlerleme takibi — cumulative kullanılır, tur geçişinde yanlış alarm vermez
             agent.stall_frames += 1
@@ -336,12 +401,15 @@ def main():
                     agent.last_checkpoint_score = cumulative
                     agent.stall_frames = 0
 
-            # Gerçek fitness: mesafe + viraj bonusu - jitter - yavaşlık - duvar yakınlığı
+            # Gerçek fitness: mesafe + viraj bonusu + çizgi bonusu + hız bonusu - cezalar
             fitness = max(0.1, cumulative
                           + agent.corner_bonus
+                          + agent.line_bonus
+                          + agent.speed_bonus
                           - agent.jitter_count        * JITTER_PENALTY
                           - agent.slow_frames         * SLOW_PENALTY
-                          - agent.wall_proximity_penalty)
+                          - agent.wall_proximity_penalty
+                          - agent.backward_penalty)
 
             if collision or time >= MAX_TIME:
                 if fitness > best_score:
@@ -353,6 +421,15 @@ def main():
                 agent_list.remove(agent)
             else:
                 progress = cumulative - agent.env.score
+                # Geriye gitme tespiti ve cezası
+                if progress < -0.5:   # küçük gürültsülerü yoksay
+                    agent.backward_frames += 1
+                    agent.backward_penalty += BACKWARD_PENALTY
+                    agent.env.reward -= BACKWARD_PENALTY  # anlık reward'a da uygula
+                    if BACKWARD_KILL_FRAMES and agent.backward_frames >= BACKWARD_KILL_FRAMES:
+                        collision = True  # uzun süre geri gidiyorsa öldür
+                else:
+                    agent.backward_frames = 0  # ileri gidince sayacı sıfırla
                 agent.env.reward += progress * 0.6
                 agent.env.score = cumulative
                 agent.env.step(action)
@@ -367,10 +444,8 @@ def main():
         pygame.draw.rect(window, (0, 255, 0), track_lines.start_line)
         pygame.draw.rect(window, (255, 0, 0), track_lines.mid_line)
         pygame.draw.rect(window, (0, 0, 255), track_lines.blue_line_rect)
-        pygame.draw.rect(window, (120, 180, 120), track_lines.reward_line_1_rect)
-        pygame.draw.rect(window, (120, 180, 120), track_lines.reward_line_2_rect)
-        pygame.draw.rect(window, (120, 180, 120), track_lines.reward_line_3_rect)
-        pygame.draw.rect(window, (120, 180, 120), track_lines.reward_line_4_rect)
+        for i, rr in enumerate(track_lines.reward_rects):
+            pygame.draw.rect(window, (120, 180, 120), rr)
 
         window.blit(road_surface, (0, 0))
 
@@ -386,7 +461,7 @@ def main():
         if len(agent_list) == 0:
             generation += 1
             print(f"\n=== Generation {generation} ===")
-            track_lines = TrackLines()  # reset reward lines
+            track_lines = TrackLines.from_track_image(TRACK_IMAGE, __file__)  # JSON'dan yeniden yükle
             
             # --- ELITISM UPDATE ---
             combined_pool = global_elites + dead_agents
