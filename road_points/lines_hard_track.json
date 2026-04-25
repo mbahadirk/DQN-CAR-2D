@@ -1,0 +1,121 @@
+{
+  "lines": [
+    {
+      "kind": "start_line",
+      "label": "Start Line",
+      "rect": [
+        456,
+        488,
+        10,
+        80
+      ],
+      "orientation": "V",
+      "color": [
+        50,
+        220,
+        50
+      ]
+    },
+    {
+      "kind": "blue_line",
+      "label": "Blue Line",
+      "rect": [
+        495,
+        488,
+        10,
+        80
+      ],
+      "orientation": "V",
+      "color": [
+        50,
+        100,
+        255
+      ]
+    },
+    {
+      "kind": "mid_line",
+      "label": "Mid Line",
+      "rect": [
+        511,
+        41,
+        10,
+        80
+      ],
+      "orientation": "V",
+      "color": [
+        220,
+        50,
+        50
+      ]
+    },
+    {
+      "kind": "reward",
+      "label": "Reward 1",
+      "rect": [
+        873,
+        409,
+        60,
+        10
+      ],
+      "orientation": "H",
+      "color": [
+        255,
+        200,
+        30
+      ]
+    },
+    {
+      "kind": "reward",
+      "label": "Reward 2",
+      "rect": [
+        684,
+        222,
+        10,
+        60
+      ],
+      "orientation": "V",
+      "color": [
+        255,
+        130,
+        40
+      ]
+    },
+    {
+      "kind": "reward",
+      "label": "Reward 3",
+      "rect": [
+        785,
+        53,
+        10,
+        60
+      ],
+      "orientation": "V",
+      "color": [
+        180,
+        80,
+        255
+      ]
+    },
+    {
+      "kind": "reward",
+      "label": "Reward 4",
+      "rect": [
+        135,
+        382,
+        10,
+        60
+      ],
+      "orientation": "V",
+      "color": [
+        60,
+        220,
+        180
+      ]
+    }
+  ],
+  "start_point": {
+    "x": 789,
+    "y": 522,
+    "angle": 0
+  }
+}

@@ -1,0 +1,153 @@
+{
+  "lines": [
+    {
+      "kind": "mid_line",
+      "label": "Mid Line",
+      "rect": [
+        492,
+        51,
+        10,
+        80
+      ],
+      "orientation": "V",
+      "color": [
+        220,
+        50,
+        50
+      ]
+    },
+    {
+      "kind": "reward",
+      "label": "Reward 1",
+      "rect": [
+        881,
+        416,
+        60,
+        10
+      ],
+      "orientation": "H",
+      "color": [
+        255,
+        200,
+        30
+      ]
+    },
+    {
+      "kind": "reward",
+      "label": "Reward 2",
+      "rect": [
+        530,
+        299,
+        60,
+        10
+      ],
+      "orientation": "H",
+      "color": [
+        255,
+        130,
+        40
+      ]
+    },
+    {
+      "kind": "reward",
+      "label": "Reward 3",
+      "rect": [
+        879,
+        164,
+        60,
+        10
+      ],
+      "orientation": "H",
+      "color": [
+        180,
+        80,
+        255
+      ]
+    },
+    {
+      "kind": "reward",
+      "label": "Reward 4",
+      "rect": [
+        186,
+        69,
+        10,
+        60
+      ],
+      "orientation": "V",
+      "color": [
+        60,
+        220,
+        180
+      ]
+    },
+    {
+      "kind": "reward",
+      "label": "Reward 5",
+      "rect": [
+        107,
+        457,
+        10,
+        60
+      ],
+      "orientation": "V",
+      "color": [
+        255,
+        80,
+        150
+      ]
+    },
+    {
+      "kind": "reward",
+      "label": "Reward 6",
+      "rect": [
+        236,
+        241,
+        10,
+        60
+      ],
+      "orientation": "V",
+      "color": [
+        80,
+        200,
+        255
+      ]
+    },
+    {
+      "kind": "blue_line",
+      "label": "Blue Line",
+      "rect": [
+        560,
+        461,
+        10,
+        80
+      ],
+      "orientation": "V",
+      "color": [
+        50,
+        100,
+        255
+      ]
+    },
+    {
+      "kind": "start_line",
+      "label": "Start Line",
+      "rect": [
+        515,
+        461,
+        10,
+        80
+      ],
+      "orientation": "V",
+      "color": [
+        50,
+        220,
+        50
+      ]
+    }
+  ],
+  "start_point": {
+    "x": 592,
+    "y": 512,
+    "angle": 0
+  }
+}

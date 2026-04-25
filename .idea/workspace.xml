@@ -4,13 +4,13 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="4d62ca8f-09a1-4087-9dcd-6ae6644a7c01" name="Changes" comment="Genetic Algorithm Ready">
+    <list default="true" id="4d62ca8f-09a1-4087-9dcd-6ae6644a7c01" name="Changes" comment="extensions and better logic">
+      <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/img.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/vid.gif" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Genetic Algorithm/agentCar.py" beforeDir="false" afterPath="$PROJECT_DIR$/Genetic Algorithm/agentCar.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Genetic Algorithm/train.py" beforeDir="false" afterPath="$PROJECT_DIR$/Genetic Algorithm/train.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/images/track2.png" beforeDir="false" afterPath="$PROJECT_DIR$/images/track2.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/track_lines.py" beforeDir="false" afterPath="$PROJECT_DIR$/track_lines.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/utilities/threshold.py" beforeDir="false" afterPath="$PROJECT_DIR$/utilities/threshold.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Genetic Algorithm/models/best_model.pt" beforeDir="false" afterPath="$PROJECT_DIR$/Genetic Algorithm/models/best_model.pt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -69,12 +69,13 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "com.codeium.enabled": "true",
     "git-widget-placeholder": "experimental",
-    "last_opened_file_path": "C:/Users/pahstoner/Desktop/stable-diffusion-webui-master",
+    "last_opened_file_path": "C:/Users/pahstoner/PycharmProjects/DQN-CAR-2D",
     "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable"
   }
 }]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\pahstoner\PycharmProjects\DQN-CAR-2D" />
       <recent name="C:\Users\pahstoner\PycharmProjects\car2d\images" />
       <recent name="C:\Users\pahstoner\PycharmProjects\car2d" />
     </key>
@@ -86,7 +87,7 @@
       <recent name="C:\Users\pahstoner\PycharmProjects\DQN-CAR-2D\images" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.train (2)">
+  <component name="RunManager" selected="Python.track_editor">
     <configuration name="Simulation" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="car2d" />
       <option name="ENV_FILES" value="" />
@@ -243,8 +244,8 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.train (2)" />
         <item itemvalue="Python.track_editor" />
+        <item itemvalue="Python.train (2)" />
         <item itemvalue="Python.Simulation" />
         <item itemvalue="Python.train" />
         <item itemvalue="Python.generate_roads (1)" />
@@ -395,7 +396,15 @@
       <option name="project" value="LOCAL" />
       <updated>1777138699404</updated>
     </task>
-    <option name="localTasksCounter" value="17" />
+    <task id="LOCAL-00017" summary="extensions and better logic">
+      <option name="closed" value="true" />
+      <created>1777150276673</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1777150276673</updated>
+    </task>
+    <option name="localTasksCounter" value="18" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -438,6 +447,7 @@
     <MESSAGE value="All Systems Changed" />
     <MESSAGE value="Genetic Algorithm Raises" />
     <MESSAGE value="Genetic Algorithm Ready" />
-    <option name="LAST_COMMIT_MESSAGE" value="Genetic Algorithm Ready" />
+    <MESSAGE value="extensions and better logic" />
+    <option name="LAST_COMMIT_MESSAGE" value="extensions and better logic" />
   </component>
 </project>
