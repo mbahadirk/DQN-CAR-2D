@@ -1,4 +1,5 @@
 import copy
+import math
 
 import pygame
 import torch
@@ -19,6 +20,9 @@ POPULATION = 30
 TICK_RATE = 30
 MAX_TIME = 999999999999
 MUTATION_RATE = 0.05
+EPSILON_DECAY = 0.9998
+EPSILON_SLOW_THRESHOLD = 0.25
+EPSILON_SLOW_DECAY = 0.99995
 # Eğer ajan bu kadar frame içinde en az PROGRESS_MIN ilerleme kaydedemezse öldür
 STALL_FRAMES = 90       # ~3 saniye (30fps'de)
 PROGRESS_MIN = 3        # bu kadar road-point ilerlemesi bekleniyor
@@ -32,12 +36,12 @@ CORNER_ANGLE_THRESHOLD = 2.0  # bir frame'de bu kadar derece dönüş = viraj sa
 
 # --- Parkur konfigürasyonu ---
 # Farklı parkurda eğitim için bu iki satırı değiştir:
-TRACK_IMAGE      = '../images/track_hard.png'
-ROAD_POINTS_FILE = '../road_points/road_points_road_hard.txt'
+TRACK_IMAGE      = '../images/track2.png'
+ROAD_POINTS_FILE = '../road_points/road_points_track2.txt'
 
 # Önceki eğitimden devam etmek için en iyi modelin yolunu gir.
 # None → sıfırdan başla, 'models/best_model.pt' → kaydedilmiş modelden başla.
-SEED_MODEL =    "models/best_model.pt"
+SEED_MODEL = "models/best_model.pt" #None
 
 
 car_list = [Car(start_x=START_POS[0], start_y=START_POS[1]) for _ in range(POPULATION)]
@@ -114,7 +118,7 @@ def make_agent(car, track_lines, rays, epsilon=0.05):
     return AGENT(car, env, agent)
 
 
-def regenerate_agents(car_list, track_lines, rays, scored_dead=None, seed_model_path=None):
+def regenerate_agents(car_list, track_lines, rays, scored_dead=None, seed_model_path=None, current_epsilon=0.05):
     """
     scored_dead:      list of (fitness_score, nn.Sequential model), one per dead agent.
                       Selects top ELITE_FRACTION as parents, fills next gen via crossover + mutation.
@@ -123,18 +127,28 @@ def regenerate_agents(car_list, track_lines, rays, scored_dead=None, seed_model_
     agent_list = []
 
     if scored_dead and len(scored_dead) >= 2:
+        # Sort by fitness score descending
         scored_dead.sort(key=lambda x: x[0], reverse=True)
         parents = [model for _, model in scored_dead[:N_PARENTS]]
         print(f"  Parents: {[round(s, 1) for s, _ in scored_dead[:N_PARENTS]]}")
 
         for i, car in enumerate(car_list):
-            p1 = parents[i % N_PARENTS]
-            p2 = parents[(i + 1) % N_PARENTS]
-            child_model = crossover(p1, p2)
-            mutate_model(child_model)
-            ca = make_agent(car, track_lines, rays, epsilon=0.05)
-            ca.agent.model.load_state_dict(child_model.state_dict())
-            car.name = f"Car {i + 1}"
+            ca = make_agent(car, track_lines, rays, epsilon=current_epsilon)
+            
+            if i == 0:
+                # ---------------- CHAMPION PROTECTION ----------------
+                # Car 1 inherits the absolute best model without mutation
+                ca.agent.model.load_state_dict(copy.deepcopy(parents[0].state_dict()))
+                car.name = "Champion"
+            else:
+                # Other cars crossover and mutate normally
+                p1 = parents[i % N_PARENTS]
+                p2 = parents[(i + 1) % N_PARENTS]
+                child_model = crossover(p1, p2)
+                mutate_model(child_model)
+                ca.agent.model.load_state_dict(child_model.state_dict())
+                car.name = f"Car {i + 1}"
+                
             reset_agent(ca)
             agent_list.append(ca)
     else:
@@ -148,7 +162,7 @@ def regenerate_agents(car_list, track_lines, rays, scored_dead=None, seed_model_
                 print(f"Seed model bulunamadı ({seed_model_path}), sıfırdan başlanıyor.")
 
         for i, car in enumerate(car_list):
-            ca = make_agent(car, track_lines, rays, epsilon=0.05 if seed_weights else 0.1)
+            ca = make_agent(car, track_lines, rays, epsilon=current_epsilon)
             reset_agent(ca)
             if seed_weights:
                 ca.agent.model.load_state_dict(copy.deepcopy(seed_weights))
@@ -159,12 +173,13 @@ def regenerate_agents(car_list, track_lines, rays, scored_dead=None, seed_model_
     return agent_list
 
 
-def draw_debug_texts(window, font, best_score, generation, alive_count, time_val):
+def draw_debug_texts(window, font, best_score, generation, alive_count, time_val, epsilon):
     stats = [
         f"Best Score: {int(best_score)}",
         f"Generation: {generation}",
         f"Alive: {alive_count}",
         f"Time: {time_val / 60:.1f}s",
+        f"Epsilon: {epsilon:.3f}",
     ]
     for i, text in enumerate(stats):
         rendered = font.render(text, True, (200, 200, 200))
@@ -215,21 +230,36 @@ def main():
     frame = 0
     time = 0
     run = True
-
-    agent_list = regenerate_agents(car_list, track_lines, rays, seed_model_path=SEED_MODEL)
-    # Cache car masks — car_image never changes, no need to recompute every frame
-    car_masks = {id(ag.car): pygame.mask.from_surface(ag.car.car_image) for ag in agent_list}
+    global_epsilon = 0.05 if SEED_MODEL else 0.1
+    agent_list = regenerate_agents(car_list, track_lines, rays, seed_model_path=SEED_MODEL, current_epsilon=global_epsilon)
     # (fitness_score, nn.Sequential model) pairs collected each generation
     dead_agents: list[tuple[float, torch.nn.Sequential]] = []
+    global_elites: list[tuple[float, torch.nn.Sequential]] = []
 
     while run:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
-            elif event.type == pygame.KEYDOWN and event.key == pygame.K_s:
-                if best_model_weights is not None:
-                    torch.save(best_model_weights, "models/best_model.pt")
-                    print(f"[S] Model kaydedildi. En iyi skor: {best_score:.1f}")
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_s:
+                    if best_model_weights is not None:
+                        torch.save(best_model_weights, "models/best_model.pt")
+                        print(f"[S] Model kaydedildi. En iyi skor: {best_score:.1f}")
+                elif event.key == pygame.K_UP:
+                    global_epsilon = min(1.0, global_epsilon + 0.05)
+                    for ag in agent_list:
+                        ag.agent.epsilon = global_epsilon
+                    print(f"Epsilon artırıldı: {global_epsilon:.2f}")
+                elif event.key == pygame.K_DOWN:
+                    global_epsilon = max(0.0, global_epsilon - 0.05)
+                    for ag in agent_list:
+                        ag.agent.epsilon = global_epsilon
+                    print(f"Epsilon azaltıldı: {global_epsilon:.2f}")
+        if global_epsilon > 0.01:
+            current_decay = EPSILON_DECAY if global_epsilon > EPSILON_SLOW_THRESHOLD else EPSILON_SLOW_DECAY
+            global_epsilon = max(0.01, global_epsilon * current_decay)
+            for ag in agent_list:
+                ag.agent.epsilon = global_epsilon
 
         window.fill((0, 0, 0))
         window.blit(threshold_image, threshold_image.get_rect(center=window.get_rect().center))
@@ -237,18 +267,28 @@ def main():
         for agent in list(agent_list):
             car_pos = (agent.car.x, agent.car.y)
 
-            # Draw rays, accumulate wall proximity penalty into fitness directly
+            # Draw rays from the correct point on the car's surface, not the center
+            cos_ca = math.cos(math.radians(agent.car.angle))
+            sin_ca = math.sin(math.radians(agent.car.angle))
+            half_fwd = agent.car.rect.width / 2   # nose-to-tail half-length
+            half_lat = agent.car.rect.height / 2  # side-to-side half-width
             for ray in rays:
-                ray.draw_beam(car_pos, agent.car.angle, flipped_masks, beam_surface, threshold_mask)
+                r = math.radians(ray.angle)
+                lx = math.cos(r) * half_fwd  # forward component in car space
+                ly = math.sin(r) * half_lat  # lateral component in car space
+                origin = (
+                    agent.car.x + lx * cos_ca - ly * sin_ca,
+                    agent.car.y + lx * sin_ca + ly * cos_ca,
+                )
+                ray.draw_beam(origin, agent.car.angle, flipped_masks, beam_surface, threshold_mask)
                 if ray.distance < ray.dangerous_distance:
                     agent.wall_proximity_penalty += WALL_PENALTY_SCALE * (ray.dangerous_distance - ray.distance)
 
-            # Pixel collision — use cached mask (car_image never changes)
-            car_mask = car_masks[id(agent.car)]
-            car_offset = (
-                int(agent.car.x - agent.car.rect.width / 2),
-                int(agent.car.y - agent.car.rect.height / 2),
-            )
+            # Pixel collision with properly rotated mask
+            rotated_car_img = pygame.transform.rotate(agent.car.car_image, -agent.car.angle)
+            car_mask = pygame.mask.from_surface(rotated_car_img)
+            rotated_rect = rotated_car_img.get_rect(center=(agent.car.x, agent.car.y))
+            car_offset = (rotated_rect.left, rotated_rect.top)
             collision = threshold_mask.overlap(car_mask, car_offset)
 
             state = agent.env.get_state()
@@ -334,7 +374,8 @@ def main():
 
         window.blit(road_surface, (0, 0))
 
-        draw_debug_texts(window, font, best_score, generation, len(agent_list), frame)
+        current_epsilon = agent_list[0].agent.epsilon if agent_list else 0.05
+        draw_debug_texts(window, font, best_score, generation, len(agent_list), frame, current_epsilon)
 
         for car in car_list:
             car.draw(window)
@@ -346,7 +387,14 @@ def main():
             generation += 1
             print(f"\n=== Generation {generation} ===")
             track_lines = TrackLines()  # reset reward lines
-            agent_list = regenerate_agents(car_list, track_lines, rays, scored_dead=dead_agents)
+            
+            # --- ELITISM UPDATE ---
+            combined_pool = global_elites + dead_agents
+            combined_pool.sort(key=lambda x: x[0], reverse=True)
+            # Keep only the all-time best N_PARENTS
+            global_elites = combined_pool[:max(N_PARENTS, 2)]
+            
+            agent_list = regenerate_agents(car_list, track_lines, rays, scored_dead=global_elites, current_epsilon=global_epsilon)
             dead_agents = []
             time = 0
 

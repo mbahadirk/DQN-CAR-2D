@@ -4,17 +4,13 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="4d62ca8f-09a1-4087-9dcd-6ae6644a7c01" name="Changes" comment="Genetic Algorithm Begins">
-      <change beforePath="$PROJECT_DIR$/.idea/car2d.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/car2d.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+    <list default="true" id="4d62ca8f-09a1-4087-9dcd-6ae6644a7c01" name="Changes" comment="Genetic Algorithm Raises">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DQN/train.py" beforeDir="false" afterPath="$PROJECT_DIR$/DQN/train.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Genetic Algorithm/Agent.py" beforeDir="false" afterPath="$PROJECT_DIR$/Genetic Algorithm/Agent.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Genetic Algorithm/CarEnvironment.py" beforeDir="false" afterPath="$PROJECT_DIR$/Genetic Algorithm/CarEnvironment.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Genetic Algorithm/agentCar.py" beforeDir="false" afterPath="$PROJECT_DIR$/Genetic Algorithm/agentCar.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Genetic Algorithm/train.py" beforeDir="false" afterPath="$PROJECT_DIR$/Genetic Algorithm/train.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ray.py" beforeDir="false" afterPath="$PROJECT_DIR$/ray.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/track_lines.py" beforeDir="false" afterPath="$PROJECT_DIR$/track_lines.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/utilities/road_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/utilities/road_utils.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Q-Learning/train.py" beforeDir="false" afterPath="$PROJECT_DIR$/Q-Learning/train.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -382,7 +378,15 @@
       <option name="project" value="LOCAL" />
       <updated>1749340536641</updated>
     </task>
-    <option name="localTasksCounter" value="15" />
+    <task id="LOCAL-00015" summary="Genetic Algorithm Raises">
+      <option name="closed" value="true" />
+      <created>1777130237180</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1777130237180</updated>
+    </task>
+    <option name="localTasksCounter" value="16" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -423,6 +427,7 @@
     <MESSAGE value="QLearning added" />
     <MESSAGE value="minifix" />
     <MESSAGE value="All Systems Changed" />
-    <option name="LAST_COMMIT_MESSAGE" value="All Systems Changed" />
+    <MESSAGE value="Genetic Algorithm Raises" />
+    <option name="LAST_COMMIT_MESSAGE" value="Genetic Algorithm Raises" />
   </component>
 </project>

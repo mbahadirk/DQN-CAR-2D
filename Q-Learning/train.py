@@ -158,8 +158,11 @@ while run:
 
         car.update_with_action(action)
 
-        car_mask = pygame.mask.from_surface(car.car_image)
-        car_offset = (int(car.x - car.rect.width / 2), int(car.y - car.rect.height / 2))
+        # Collision detection with properly rotated mask
+        rotated_car_img = pygame.transform.rotate(car.car_image, -car.angle)
+        car_mask = pygame.mask.from_surface(rotated_car_img)
+        rotated_rect = rotated_car_img.get_rect(center=(car.x, car.y))
+        car_offset = (rotated_rect.left, rotated_rect.top)
         collision = threshold_mask.overlap(car_mask, car_offset)
 
         if collision:
@@ -193,7 +196,7 @@ while run:
 
     font = pygame.font.SysFont(None, 24)
     for i, car in enumerate(cars):
-        text = font.render(f"Car {i} Score: {int(previous_distances[i])}, Max:{int(max_scores[i])}, Last Collision: {collision_iterations[i]}", True, GRAY)
+        text = font.render(f"Car {i} Score: {int(previous_distances[i])}, Max:{int(max_scores[i])}, Epsilon: {epsilons[i]:.2f}, Last Collision: {collision_iterations[i]}", True, GRAY)
         window.blit(text, (10, 10 + i * 20))
 
     pygame.draw.rect(window, (0, 255, 0), track_lines.start_line)

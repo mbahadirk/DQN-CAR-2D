@@ -4,7 +4,7 @@ import numpy as np
 
 
 class DQNAgent:
-    def __init__(self, state_size, action_size, epsilon=0.05, epsilon_min=0.01, epsilon_decay=0.999,
+    def __init__(self, state_size, action_size, epsilon=0.05, epsilon_min=0.01, epsilon_decay=0.9995,
                  learning_rate=0.01):
         self.state_size = state_size
         self.action_size = action_size

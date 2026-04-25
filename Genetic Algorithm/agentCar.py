@@ -29,7 +29,7 @@ class Car:
         self.speed = 3
         self.acceleration = 0.5
         self.deceleration = 0.4
-        self.max_speed = 5
+        self.max_speed = 8
         self.friction = 0
 
         self.name = "Car"
@@ -52,11 +52,6 @@ class Car:
         collider_rect = rotated_collider.get_rect(center=rect.center)
         surface.blit(rotated_collider, collider_rect.topleft)
 
-        # Draw the car's name above the car
-        font = pygame.font.SysFont(None, 24)
-        name_text = font.render(self.name, True, (100, 100, 220))
-        text_rect = name_text.get_rect(center=(self.x, self.y - rect.height / 2 - 10))
-        surface.blit(name_text, text_rect.topleft)
 
 
     def update(self, action):

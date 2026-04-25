@@ -131,9 +131,11 @@ def main():
             if ray.distance < ray.dangerous_distance:
                 red_penalty = ray.dangerous_distance - ray.distance
                 env.reward -= 0.04 * red_penalty
-        # Collision detection
-        car_mask = pygame.mask.from_surface(car.car_image)
-        car_offset = (int(car.x - car.rect.width / 2), int(car.y - car.rect.height / 2))
+        # Collision detection with properly rotated mask
+        rotated_car_img = pygame.transform.rotate(car.car_image, -car.angle)
+        car_mask = pygame.mask.from_surface(rotated_car_img)
+        rotated_rect = rotated_car_img.get_rect(center=(car.x, car.y))
+        car_offset = (rotated_rect.left, rotated_rect.top)
         collision = threshold_mask.overlap(car_mask, car_offset)
 
 
