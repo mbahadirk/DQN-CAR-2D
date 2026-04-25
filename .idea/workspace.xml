@@ -4,9 +4,16 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="4d62ca8f-09a1-4087-9dcd-6ae6644a7c01" name="Changes" comment="extensions and better logic">
+    <list default="true" id="4d62ca8f-09a1-4087-9dcd-6ae6644a7c01" name="Changes" comment="readme and all">
       <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/images/hard_track.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/images/hard_track_2.png" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/img.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/road_points/lines_hard_track.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/road_points/lines_hard_track_2.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/road_points/road_points_hard_track.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/road_points/road_points_hard_track_2.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/track_editor.py" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/vid.gif" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Genetic Algorithm/models/best_model.pt" beforeDir="false" afterPath="$PROJECT_DIR$/Genetic Algorithm/models/best_model.pt" afterDir="false" />
@@ -404,7 +411,15 @@
       <option name="project" value="LOCAL" />
       <updated>1777150276673</updated>
     </task>
-    <option name="localTasksCounter" value="18" />
+    <task id="LOCAL-00018" summary="readme and all">
+      <option name="closed" value="true" />
+      <created>1777150891853</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1777150891853</updated>
+    </task>
+    <option name="localTasksCounter" value="19" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -448,6 +463,7 @@
     <MESSAGE value="Genetic Algorithm Raises" />
     <MESSAGE value="Genetic Algorithm Ready" />
     <MESSAGE value="extensions and better logic" />
-    <option name="LAST_COMMIT_MESSAGE" value="extensions and better logic" />
+    <MESSAGE value="readme and all" />
+    <option name="LAST_COMMIT_MESSAGE" value="readme and all" />
   </component>
 </project>

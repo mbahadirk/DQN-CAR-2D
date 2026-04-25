@@ -1,0 +1,55 @@
+import numpy as np
+
+from track_lines import handle_collision_with_lines
+
+
+class CarEnvironment:
+    """
+    The CarEnvironment class is an environment for a car agent to learn on.
+    It contains the car and the track lines. The car is updated by giving an action to the step method.
+    The state of the car is the distances to the track lines and the speed and score of the car.
+    The reward is -1 for every step taken and increases by the score of the car when a lap is taken.
+    """
+    def __init__(self, car, track_lines, rays, score):
+        self.car = car
+        self.track_lines = track_lines
+        self.state_size = 8  # [ray distances*14, speed, score, angle]
+        self.action_size = 5  # [forward, backward, turn right, turn left, nothing]
+        self.pass_startline = False
+        self.lap_flag = False
+        self.rays = rays
+        self.score = score
+        self.reward = 0
+
+    def get_state(self):
+        ray_distances = [ray.distance for ray in self.rays]
+        ray_distances = np.array(ray_distances)
+        ray_distances = ray_distances / 200
+        normalized_angle = self.car.angle / 360.0  # 0-1 aralığında
+        # normalized_speed = self.car.speed / self.car.max_speed
+        return np.array([
+            *ray_distances, normalized_angle])
+
+    def step(self, action):
+        # Update the car
+        self.car.update(action)
+
+        # Check for collisions with the lines
+        self.pass_startline, self.lap_flag = handle_collision_with_lines(
+            self.car,
+            self.track_lines.start_line_rect,
+            self.track_lines.mid_line_rect,
+            self.track_lines.blue_line_rect,
+            self.pass_startline
+        )
+
+        # Calculate the reward
+        if self.lap_flag:
+            self.reward += 1000     # If the car completes a lap
+
+        # Check if the game is over
+        done = False
+
+        # Return the new state
+        state = self.get_state()
+        return state, self.reward, done

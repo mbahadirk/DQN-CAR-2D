@@ -1,0 +1,45 @@
+# visualizer.py
+import torch
+import numpy as np
+import matplotlib.pyplot as plt
+import cv2
+
+
+class WeightVisualizer:
+    def __init__(self, model, use_cv2=False):
+        self.model = model
+        self.use_cv2 = use_cv2
+        if not use_cv2:
+            plt.ion()  # interactive mode
+
+    def extract_weights(self):
+        weights = []
+        for layer in self.model.modules():
+            if isinstance(layer, torch.nn.Linear):
+                weights.append(layer.weight.data.cpu().numpy())
+        return weights
+
+    def visualize(self):
+        weights = self.extract_weights()
+        images = []
+
+        for i, w in enumerate(weights):
+            w_norm = (w - w.min()) / (w.max() - w.min() + 1e-8)  # Normalize to 0-1
+            w_img = (w_norm * 255).astype(np.uint8)
+            w_img = cv2.resize(w_img, (200, 200), interpolation=cv2.INTER_NEAREST)
+            images.append(w_img)
+
+        combined = cv2.hconcat(images)
+
+        if self.use_cv2:
+            cv2.imshow("Weights", combined)
+            cv2.waitKey(1)
+        else:
+            plt.clf()
+            plt.imshow(combined, cmap='viridis')
+            plt.title("Layer Weights")
+            plt.pause(0.001)
+
+    def close(self):
+        if self.use_cv2:
+            cv2.destroyAllWindows()
