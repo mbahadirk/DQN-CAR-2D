@@ -34,7 +34,7 @@ class TrackLines:
         self.mid_line = (500, 15, 10, 120)
         self.mid_line_rect = pygame.Rect(*self.mid_line)
 
-        self.blue_line = (260, 450, 10, 120)
+        self.blue_line = (265, 450, 10, 120)
         self.blue_line_rect = pygame.Rect(*self.blue_line)
 
 
@@ -65,16 +65,20 @@ class TrackLines:
 
 
 
-def handle_collision_with_lines(car, start_line_rect, mid_line_rect, blue_line_rect,pass_startline):
-    """Start line, mid line ve blue line ile çarpışma durumunu ele alır."""
+def handle_collision_with_lines(car, start_line_rect, mid_line_rect, blue_line_rect,
+                                pass_startline, block_start=True):
+    """Start line, mid line ve blue line ile çarpışma durumunu ele alır.
+
+    block_start=False ile çağrılırsa start_line fiziksel engel oluşturmaz,
+    sadece tur tespiti yapılır. Eğitim ortamları için kullanılır.
+    """
     car_rect = car.car_image.get_rect(center=(car.x, car.y))
 
-    if not pass_startline:
+    if not pass_startline and block_start:
         if car_rect.colliderect(start_line_rect):
             # Arabayı ters yöne geri it (hızın ve açının tersiyle)
             car.x -= car.speed * math.cos(math.radians(car.angle))
             car.y -= car.speed * math.sin(math.radians(car.angle))
-            # print("Start line ile çarpışma! Geçiş engellendi.")
 
     if car_rect.colliderect(mid_line_rect):
         pass_startline = True

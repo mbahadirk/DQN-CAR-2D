@@ -1,4 +1,5 @@
-import numpy as np
+import copy
+
 import pygame
 import torch
 from torch.nn.utils import parameters_to_vector, vector_to_parameters
@@ -7,83 +8,39 @@ from Agent import DQNAgent
 from CarEnvironment import CarEnvironment
 from agentCar import Car
 from ray_list import create_rays
-from track_lines import TrackLines, handle_collision_with_lines
+from track_lines import TrackLines
 from utilities.reorder_road_points import reorder_road_points
 from utilities.road_utils import find_closest_point, load_road_points, calculate_distance_from_start
 from utilities.threshold import apply_threshold
-from weightVisualizer import visualize_model
 
 
-track_lines = TrackLines()
+START_POS = (280, 530)
+POPULATION = 30
+TICK_RATE = 30
+MAX_TIME = 999999999999
+MUTATION_RATE = 0.05
+# Eğer ajan bu kadar frame içinde en az PROGRESS_MIN ilerleme kaydedemezse öldür
+STALL_FRAMES = 90       # ~3 saniye (30fps'de)
+PROGRESS_MIN = 3        # bu kadar road-point ilerlemesi bekleniyor
+N_PARENTS = 2           # bir sonraki nesli üretmek için kullanılan en iyi ajan sayısı
+SPEED_TARGET = 3.5      # bu hızın altında kalmak slow_frames sayacını artırır
+JITTER_PENALTY = 0.4    # fitness'tan düşülecek miktar (her yön değiştirmede)
+SLOW_PENALTY   = 0.03   # fitness'tan düşülecek miktar (her yavaş frame'de)
+WALL_PENALTY_SCALE  = 0.0003  # tehlikeli ray başına frame başına ceza
+CORNER_BONUS_SCALE  = 0.25    # aktif viraj + ilerleme başına bonus
+CORNER_ANGLE_THRESHOLD = 2.0  # bir frame'de bu kadar derece dönüş = viraj sayılır
 
-start_pos = (280, 530)
+# --- Parkur konfigürasyonu ---
+# Farklı parkurda eğitim için bu iki satırı değiştir:
+TRACK_IMAGE      = '../images/track_hard.png'
+ROAD_POINTS_FILE = '../road_points/road_points_road_hard.txt'
 
-batch_size = 10
-tick_rate = 30
-
-
-def reset_agent(agent):
-    agent.car.x, agent.car.y = start_pos[0], start_pos[1]
-    agent.car.speed = 3
-    agent.car.angle = 0
-    agent.env.reward = 0
-
-
-def stop_dead_agent(agent):
-    agent.isDead = True
-    agent.car.speed = 0
-    agent.env.done = True
-
-
-def draw_action_buttons(window, action):
-    pos = [(750, 100), (750, 130), (780, 130), (720, 130)]
-    for i, (x, y) in enumerate(pos):
-        color = (0, 255, 0) if action == i else (128, 128, 128)
-        pygame.draw.rect(window, color, (x, y, 20, 20))
+# Önceki eğitimden devam etmek için en iyi modelin yolunu gir.
+# None → sıfırdan başla, 'models/best_model.pt' → kaydedilmiş modelden başla.
+SEED_MODEL =    "models/best_model.pt"
 
 
-def draw_debug_texts(window, score, gen, epsilon, alive_agent, frame):
-    font = pygame.font.SysFont(None, 24)
-    stats = [
-        f"Best Score: {int(score)}",
-        f"Generation: {gen}",
-        f"Epsilon: {epsilon:.3f}",
-        f"Alive Agent: {alive_agent}",
-        f"Time: {frame / 60:.1f}"
-    ]
-    for i, text in enumerate(stats):
-        rendered = font.render(text, True, (128, 128, 128))
-        window.blit(rendered, (window.get_width() - 250, 10 + i * 15))
-
-
-def update_score_display(car_pos, road_points, window):
-    closest_index = find_closest_point(car_pos, road_points)
-    distance = calculate_distance_from_start(road_points, closest_index)
-    return distance
-
-
-
-car_list = []
-for _ in range(20):
-    car_list.append(Car(start_x=start_pos[0], start_y=start_pos[1]))
-
-
-def mutate_model(model, mutation_rate=0.02):
-    """
-    Model ağırlıklarına küçük gürültü ekler.
-    mutation_rate: Mutasyonun şiddeti (0.01-0.05 gibi).
-    """
-    with torch.no_grad():
-        # Ağırlıkları tek vektör yap
-        weights = parameters_to_vector(model.parameters())
-
-        # Gürültü (mutasyon) ekle
-        noise = torch.randn_like(weights) * mutation_rate
-
-        mutated_weights = weights + noise
-
-        # Mutasyonlu ağırlıkları modele yükle
-        vector_to_parameters(mutated_weights, model.parameters())
+car_list = [Car(start_x=START_POS[0], start_y=START_POS[1]) for _ in range(POPULATION)]
 
 
 class AGENT:
@@ -91,69 +48,132 @@ class AGENT:
         self.car = car
         self.env = env
         self.agent = agent
-        self.car_pos = self.car.x, self.car.y
         self.isDead = False
+        self.stall_frames = 0
+        self.last_checkpoint_score = 0
+        self.lap_count = 0             # tamamlanan tur sayısı
+        self.collected_rewards = set() # hangi reward line'lardan bonus alındı (per-agent)
+        self.prev_action = 4           # bir önceki action (jitter tespiti için)
+        self.jitter_count = 0          # art arda zıt dönüş sayısı
+        self.slow_frames = 0           # SPEED_TARGET altında geçen frame sayısı
+        self.wall_proximity_penalty = 0.0  # duvara yakınlık birikimli ceza
+        self.corner_bonus = 0.0            # viraj bonusu
+        self.prev_angle = car.angle        # bir önceki frame açısı
+
+
+def reset_agent(agent):
+    agent.car.x, agent.car.y = START_POS
+    agent.car.speed = 3
+    agent.car.angle = 0
+    agent.env.reward = 0
+    agent.env.score = 0
+    agent.env.pass_startline = False
+    agent.env.lap_cooldown = 0
+    agent.isDead = False
+    agent.stall_frames = 0
+    agent.last_checkpoint_score = 0
+    agent.lap_count = 0
+    agent.collected_rewards = set()
+    agent.prev_action = 4
+    agent.jitter_count = 0
+    agent.slow_frames = 0
+    agent.wall_proximity_penalty = 0.0
+    agent.corner_bonus = 0.0
+    agent.prev_angle = agent.car.angle
+
+
+def stop_dead_agent(agent):
+    agent.isDead = True
+    agent.car.speed = 0
+
+
+def mutate_model(model, mutation_rate=MUTATION_RATE):
+    with torch.no_grad():
+        weights = parameters_to_vector(model.parameters())
+        noise = torch.randn_like(weights) * mutation_rate
+        vector_to_parameters(weights + noise, model.parameters())
 
 
 def crossover(model1, model2):
-    child_model = DQNAgent(model1.env.state_size, model1.env.action_size).model
-    state_dict1 = model1.state_dict()
-    state_dict2 = model2.state_dict()
-    child_state_dict = {}
-
-    for key in state_dict1.keys():
-        weights1 = state_dict1[key]
-        weights2 = state_dict2[key]
-        # Her bir parametrenin yarısını 1. modelden, diğer yarısını 2. modelden alalım
-        mask = torch.rand_like(weights1) > 0.5
-        child_weights = torch.where(mask, weights1, weights2)
-        child_state_dict[key] = child_weights
-
-    child_model.load_state_dict(child_state_dict)
-    return child_model
+    """Crossover two nn.Sequential models gene-by-gene, returning a new child model."""
+    child = copy.deepcopy(model1)
+    sd1 = model1.state_dict()
+    sd2 = model2.state_dict()
+    child_sd = {}
+    for key in sd1:
+        w1, w2 = sd1[key].float(), sd2[key].float()
+        mask = torch.rand_like(w1) > 0.5
+        child_sd[key] = torch.where(mask, w1, w2)
+    child.load_state_dict(child_sd)
+    return child
 
 
-def regenerate_agents(car_list, rays, generation, prev_agents=None):
+def make_agent(car, track_lines, rays, epsilon=0.05):
+    env = CarEnvironment(car, track_lines, rays, 0)
+    agent = DQNAgent(env.state_size, env.action_size, epsilon=epsilon)
+    return AGENT(car, env, agent)
+
+
+def regenerate_agents(car_list, track_lines, rays, scored_dead=None, seed_model_path=None):
+    """
+    scored_dead:      list of (fitness_score, nn.Sequential model), one per dead agent.
+                      Selects top ELITE_FRACTION as parents, fills next gen via crossover + mutation.
+    seed_model_path:  yol verilirse ilk nesil bu modelin mutasyonlu kopyalarından oluşur.
+    """
     agent_list = []
-    best_model_path = "models/best_model.pt"  # En iyi modelin kaydedildiği yer
 
-    # Eğer öncekiler varsa, çiftler oluşturup crossover yap
-    if prev_agents is not None and len(prev_agents) >= 2:
-        for i in range(len(car_list)):
-            car = car_list[i]
-            env = CarEnvironment(car, track_lines, rays, 0)
+    if scored_dead and len(scored_dead) >= 2:
+        scored_dead.sort(key=lambda x: x[0], reverse=True)
+        parents = [model for _, model in scored_dead[:N_PARENTS]]
+        print(f"  Parents: {[round(s, 1) for s, _ in scored_dead[:N_PARENTS]]}")
 
-            # Ebeveyn ajanlar
-            parent1 = prev_agents[i % len(prev_agents)].agent.model
-            parent2 = prev_agents[(i+1) % len(prev_agents)].agent.model
-
-            child_model = crossover(parent1, parent2)
-            agent = DQNAgent(env.state_size, env.action_size, learning_rate=1e-4,
-                             epsilon=1.0, epsilon_min=0.01, epsilon_decay=0.995, buffer_size=1000)
-            agent.model.load_state_dict(child_model.state_dict())
-
-            car_agent = AGENT(car, env, agent)
-            reset_agent(car_agent)
+        for i, car in enumerate(car_list):
+            p1 = parents[i % N_PARENTS]
+            p2 = parents[(i + 1) % N_PARENTS]
+            child_model = crossover(p1, p2)
+            mutate_model(child_model)
+            ca = make_agent(car, track_lines, rays, epsilon=0.05)
+            ca.agent.model.load_state_dict(child_model.state_dict())
             car.name = f"Car {i + 1}"
-            agent_list.append(car_agent)
+            reset_agent(ca)
+            agent_list.append(ca)
     else:
-        # İlk generation ya da model yoksa klasik
-        for car in car_list:
-            env = CarEnvironment(car, track_lines, rays, 0)
-            agent = DQNAgent(env.state_size, env.action_size, learning_rate=1e-4,
-                             epsilon=1.0, epsilon_min=0.01, epsilon_decay=0.995, buffer_size=1000)
+        # Seed model yükle (varsa) — tüm popülasyon onun mutasyonlu kopyaları olur
+        seed_weights = None
+        if seed_model_path:
             try:
-                agent.model.load_state_dict(torch.load(best_model_path))
-                print("💾 En iyi model yüklendi!")
+                seed_weights = torch.load(seed_model_path, weights_only=True)
+                print(f"Seed model yüklendi: {seed_model_path}")
             except FileNotFoundError:
-                print("⚠ En iyi model bulunamadı, yeni model oluşturuluyor.")
+                print(f"Seed model bulunamadı ({seed_model_path}), sıfırdan başlanıyor.")
 
-            car_agent = AGENT(car, env, agent)
-            reset_agent(car_agent)
-            car.name = f"Car {len(agent_list) + 1}"
-            agent_list.append(car_agent)
+        for i, car in enumerate(car_list):
+            ca = make_agent(car, track_lines, rays, epsilon=0.05 if seed_weights else 0.1)
+            reset_agent(ca)
+            if seed_weights:
+                ca.agent.model.load_state_dict(copy.deepcopy(seed_weights))
+                mutate_model(ca.agent.model, mutation_rate=MUTATION_RATE)
+            car.name = f"Car {i + 1}"
+            agent_list.append(ca)
 
     return agent_list
+
+
+def draw_debug_texts(window, font, best_score, generation, alive_count, time_val):
+    stats = [
+        f"Best Score: {int(best_score)}",
+        f"Generation: {generation}",
+        f"Alive: {alive_count}",
+        f"Time: {time_val / 60:.1f}s",
+    ]
+    for i, text in enumerate(stats):
+        rendered = font.render(text, True, (200, 200, 200))
+        window.blit(rendered, (window.get_width() - 250, 10 + i * 18))
+
+
+def update_distance(car_pos, road_points):
+    closest_index = find_closest_point(car_pos, road_points)
+    return calculate_distance_from_start(road_points, closest_index)
 
 
 def main():
@@ -161,14 +181,12 @@ def main():
     win_size = (1000, 600)
     window = pygame.display.set_mode(win_size)
     clock = pygame.time.Clock()
-    rays = create_rays(window)
-    pygame.display.set_caption("Self Driving Car")
-    # Load the track image and apply threshold
-    road_image = pygame.image.load('../images/track_hard.png').convert_alpha()
+    pygame.display.set_caption("Self Driving Car - Genetic Algorithm")
+
+    road_image = pygame.image.load(TRACK_IMAGE).convert_alpha()
     threshold_image = apply_threshold(road_image)
     threshold_mask = pygame.mask.from_surface(threshold_image)
 
-    # Flipped masks
     mask_fx = pygame.mask.from_surface(pygame.transform.flip(threshold_image, True, False))
     mask_fy = pygame.mask.from_surface(pygame.transform.flip(threshold_image, False, True))
     mask_fx_fy = pygame.mask.from_surface(pygame.transform.flip(threshold_image, True, True))
@@ -176,151 +194,166 @@ def main():
 
     beam_surface = pygame.Surface((200, 200), pygame.SRCALPHA)
 
-    # Environment setup
-    road_points = load_road_points("../road_points/road_points_road_hard.txt")
-    road_points = reorder_road_points(start_pos, road_points)[:-2]
+    road_points = load_road_points(ROAD_POINTS_FILE)
+    road_points = reorder_road_points(START_POS, road_points)[:-2]
+    max_pts = len(road_points)  # bir tam turun road-point sayısı
 
+    rays = create_rays(window)
+    track_lines = TrackLines()
 
+    # Pre-render road points once to a surface — avoid 250 draw.circle calls per frame
+    road_surface = pygame.Surface(win_size, pygame.SRCALPHA)
+    for point in road_points:
+        pygame.draw.circle(road_surface, (220, 125, 160), point, 2)
 
+    # Cache font — SysFont is expensive to create per frame
+    font = pygame.font.SysFont(None, 24)
 
-    # Training parameters
-    collision_penalty = -500
     best_score = 0
+    best_model_weights = None  # en yüksek skoru yapan ajanın ağırlıkları
     generation = 0
     frame = 0
-    pass_startline = False
-    run = True
-    fitness_score = 0
     time = 0
+    run = True
 
-    agent_list = regenerate_agents(car_list, rays, generation)
-
+    agent_list = regenerate_agents(car_list, track_lines, rays, seed_model_path=SEED_MODEL)
+    # Cache car masks — car_image never changes, no need to recompute every frame
+    car_masks = {id(ag.car): pygame.mask.from_surface(ag.car.car_image) for ag in agent_list}
+    # (fitness_score, nn.Sequential model) pairs collected each generation
+    dead_agents: list[tuple[float, torch.nn.Sequential]] = []
 
     while run:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
-
+            elif event.type == pygame.KEYDOWN and event.key == pygame.K_s:
+                if best_model_weights is not None:
+                    torch.save(best_model_weights, "models/best_model.pt")
+                    print(f"[S] Model kaydedildi. En iyi skor: {best_score:.1f}")
 
         window.fill((0, 0, 0))
         window.blit(threshold_image, threshold_image.get_rect(center=window.get_rect().center))
 
-        # visualizer.visualize()
+        for agent in list(agent_list):
+            car_pos = (agent.car.x, agent.car.y)
 
-        for agent in agent_list:
-            agent.car_pos = (agent.car.x, agent.car.y)
-
+            # Draw rays, accumulate wall proximity penalty into fitness directly
             for ray in rays:
-                ray.draw_beam(agent.car_pos, agent.car.angle, flipped_masks, beam_surface, threshold_mask)
+                ray.draw_beam(car_pos, agent.car.angle, flipped_masks, beam_surface, threshold_mask)
                 if ray.distance < ray.dangerous_distance:
-                    red_penalty = ray.dangerous_distance - ray.distance
-                    agent.env.reward -= 0.002 * red_penalty
-            # Collision detection
-            car_mask = pygame.mask.from_surface(agent.car.car_image)
-            car_offset = (int(agent.car.x - agent.car.rect.width / 2), int(agent.car.y - agent.car.rect.height / 2))
+                    agent.wall_proximity_penalty += WALL_PENALTY_SCALE * (ray.dangerous_distance - ray.distance)
+
+            # Pixel collision — use cached mask (car_image never changes)
+            car_mask = car_masks[id(agent.car)]
+            car_offset = (
+                int(agent.car.x - agent.car.rect.width / 2),
+                int(agent.car.y - agent.car.rect.height / 2),
+            )
             collision = threshold_mask.overlap(car_mask, car_offset)
 
-
-            # State and action
             state = agent.env.get_state()
             action = agent.agent.act(state)
 
-            # penalty for jittery movement
-            if action != 2:
-                agent.env.reward -= 0.03
-            if agent.car.speed < 2:
-                agent.env.reward -= 0.08
-            else: agent.env.reward += 0.08
+            # Jitter tespiti: art arda zıt dönüş (2↔3) → sayaç artır
+            if action in (2, 3) and agent.prev_action in (2, 3) and action != agent.prev_action:
+                agent.jitter_count += 1
+            agent.prev_action = action
 
-            # Yeni: Ödül hesapla
-            distance_score = update_score_display(agent.car_pos, road_points, window)
-            new_score = distance_score
-            # Collision with lines
-            pass_startline, _ = handle_collision_with_lines(
-                agent.car, track_lines.start_line_rect, track_lines.mid_line_rect,
-                track_lines.blue_line_rect, pass_startline, )
+            # Yavaşlık tespiti
+            if agent.car.speed < SPEED_TARGET:
+                agent.slow_frames += 1
 
+            distance_score = update_distance(car_pos, road_points)
+            # Birikimli mesafe: tur sınırında sıfırlanmaz, fitness doğru kalır
+            cumulative = agent.lap_count * max_pts + distance_score
+
+            # Viraj bonusu: ileri giderken aktif dönüş yapıyorsa bonus ver
+            angle_delta = abs(agent.car.angle - agent.prev_angle)
+            if angle_delta > 180:
+                angle_delta = 360 - angle_delta
+            if angle_delta >= CORNER_ANGLE_THRESHOLD and cumulative > agent.env.score:
+                agent.corner_bonus += CORNER_BONUS_SCALE
+            agent.prev_angle = agent.car.angle
+
+            # Per-ajan reward line bonusları — rect'ler silinmez, her ajan kendi flag'ini tutar
             car_rect = agent.car.car_image.get_rect(center=(agent.car.x, agent.car.y))
-            if car_rect.colliderect(track_lines.reward_line_1_rect):
-                track_lines.reward_line_1_rect = (0, 0, 0, 0)
-                agent.env.reward += 50
-                print("reward line 1 passed")
-            elif car_rect.colliderect(track_lines.reward_line_2_rect):
-                track_lines.reward_line_2_rect = (0, 0, 0, 0)
-                agent.env.reward += 100
-                print("reward line 2 passed")
-            elif car_rect.colliderect(track_lines.reward_line_3_rect):
-                track_lines.reward_line_3_rect = (0, 0, 0, 0)
-                agent.env.reward += 200
-                print("reward line 3 passed")
-            elif car_rect.colliderect(track_lines.reward_line_4_rect):
-                track_lines.reward_line_4_rect = (0, 0, 0, 0)
-                agent.env.reward += 200
-                print("reward line 4 passed")
+            for line_rect, idx, bonus in (
+                (track_lines.reward_line_1_rect, 0,  50),
+                (track_lines.reward_line_2_rect, 1, 100),
+                (track_lines.reward_line_3_rect, 2, 200),
+                (track_lines.reward_line_4_rect, 3, 200),
+            ):
+                if idx not in agent.collected_rewards and car_rect.colliderect(line_rect):
+                    agent.collected_rewards.add(idx)
+                    agent.env.reward += bonus
 
-            if collision:
-                print("Collision detected with the road.")
-                agent.env.reward = collision_penalty
-                agent.agent.step(state, action, agent.env.reward, next_state, True)
-                new_score, agent.env.score = 0, 0
+            # İlerleme takibi — cumulative kullanılır, tur geçişinde yanlış alarm vermez
+            agent.stall_frames += 1
+            if agent.stall_frames >= STALL_FRAMES:
+                if cumulative - agent.last_checkpoint_score < PROGRESS_MIN:
+                    collision = True  # stall → çarpışmış gibi işle
+                else:
+                    agent.last_checkpoint_score = cumulative
+                    agent.stall_frames = 0
+
+            # Gerçek fitness: mesafe + viraj bonusu - jitter - yavaşlık - duvar yakınlığı
+            fitness = max(0.1, cumulative
+                          + agent.corner_bonus
+                          - agent.jitter_count        * JITTER_PENALTY
+                          - agent.slow_frames         * SLOW_PENALTY
+                          - agent.wall_proximity_penalty)
+
+            if collision or time >= MAX_TIME:
+                if fitness > best_score:
+                    best_score = fitness
+                    best_model_weights = copy.deepcopy(agent.agent.model.state_dict())
+                    print(f"  New best: {best_score:.1f} (gen {generation}) — S ile kaydet")
+                dead_agents.append((fitness, copy.deepcopy(agent.agent.model)))
                 stop_dead_agent(agent)
-            elif time >= 10000:
-                agent.agent.step(state, action, agent.env.reward, next_state, True)
-                new_score, agent.env.score = 0, 0
-                stop_dead_agent(agent)
+                agent_list.remove(agent)
             else:
-                progress = new_score - agent.env.score
+                progress = cumulative - agent.env.score
                 agent.env.reward += progress * 0.6
-                agent.env.score = new_score
+                agent.env.score = cumulative
+                agent.env.step(action)
+                if agent.env.lap_flag:
+                    agent.lap_count += 1
+                # Hayattayken de best_score guncelle — olum bekleme
+                if fitness > best_score:
+                    best_score = fitness
+                    best_model_weights = copy.deepcopy(agent.agent.model.state_dict())
 
-                if agent.env.reward > best_score:
-                    best_score = agent.env.reward
-                    collision_penalty *= 1 + best_score / 50000
+        # Draw track markers
+        pygame.draw.rect(window, (0, 255, 0), track_lines.start_line)
+        pygame.draw.rect(window, (255, 0, 0), track_lines.mid_line)
+        pygame.draw.rect(window, (0, 0, 255), track_lines.blue_line_rect)
+        pygame.draw.rect(window, (120, 180, 120), track_lines.reward_line_1_rect)
+        pygame.draw.rect(window, (120, 180, 120), track_lines.reward_line_2_rect)
+        pygame.draw.rect(window, (120, 180, 120), track_lines.reward_line_3_rect)
+        pygame.draw.rect(window, (120, 180, 120), track_lines.reward_line_4_rect)
 
-                next_state, reward, done = agent.env.step(action)
-                next_state = np.array(next_state, dtype=np.float32)
-                agent.agent.step(state, action, agent.env.reward, next_state, done)
-                if len(agent.agent.replay_buffer) > batch_size:
-                    agent.agent.replay(batch_size)
-                    agent.env.done = True
+        window.blit(road_surface, (0, 0))
 
-            pygame.draw.rect(window, (0, 255, 0), track_lines.start_line)
-            pygame.draw.rect(window, (255, 0, 0), track_lines.mid_line)
-            pygame.draw.rect(window, (0, 0, 255), track_lines.blue_line_rect)
-            pygame.draw.rect(window, (120, 180, 120), track_lines.reward_line_1_rect)
-            pygame.draw.rect(window, (120, 180, 120), track_lines.reward_line_2_rect)
-            pygame.draw.rect(window, (120, 180, 120), track_lines.reward_line_3_rect)
-            pygame.draw.rect(window, (120, 180, 120), track_lines.reward_line_4_rect)
-
-            for point in road_points:
-                pygame.draw.circle(window, (220, 125, 160), point, 2)
-
-            draw_debug_texts(window, fitness_score, generation, agent.agent.epsilon, len(agent_list), frame*10 )
-
-
-            if agent.isDead:
-                if distance_score > fitness_score:
-                    fitness_score = distance_score
-                    torch.save(agent.agent.model.state_dict(),
-                               f"models/best_model.pt")
-                    print('Model saved.')
-                agent_list.pop(agent_list.index(agent))
-
+        draw_debug_texts(window, font, best_score, generation, len(agent_list), frame)
 
         for car in car_list:
             car.draw(window)
+
         pygame.display.update()
-        clock.tick(tick_rate)
+        clock.tick(TICK_RATE)
 
         if len(agent_list) == 0:
-            agent_list = regenerate_agents(car_list, rays, generation, prev_agents=agent_list)
             generation += 1
+            print(f"\n=== Generation {generation} ===")
+            track_lines = TrackLines()  # reset reward lines
+            agent_list = regenerate_agents(car_list, track_lines, rays, scored_dead=dead_agents)
+            dead_agents = []
             time = 0
-
-
 
         frame += 1
         time += 10
+
+    pygame.quit()
 
 
 if __name__ == "__main__":

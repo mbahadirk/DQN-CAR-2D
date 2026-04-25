@@ -80,9 +80,9 @@ class Car:
 
         # Steering
         if action == 2:
-            self.angle += 8
+            self.angle += 16
         if action == 3:
-            self.angle -= 8
+            self.angle -= 16
 
         # if action == 4:  # Move forward right
         #     self.speed += self.acceleration

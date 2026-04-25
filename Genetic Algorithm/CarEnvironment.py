@@ -13,10 +13,11 @@ class CarEnvironment:
     def __init__(self, car, track_lines, rays, score):
         self.car = car
         self.track_lines = track_lines
-        self.state_size = 9  # [ray distances*14, speed, score, angle]
+        self.state_size = 9  # [ray distances*7, angle, speed]
         self.action_size = 5  # [forward, backward, turn right, turn left, nothing]
         self.pass_startline = False
         self.lap_flag = False
+        self.lap_cooldown = 0  # tur sonrası start_line'ı geçici olarak açık tut
         self.rays = rays
         self.score = score
         self.reward = 0
@@ -34,18 +35,23 @@ class CarEnvironment:
         # Update the car
         self.car.update(action)
 
-        # Check for collisions with the lines
+        # Tur cooldown: blue_line'dan hemen sonra start_line'ı geçici olarak açık bırak
+        if self.lap_cooldown > 0:
+            self.lap_cooldown -= 1
+
         self.pass_startline, self.lap_flag = handle_collision_with_lines(
             self.car,
             self.track_lines.start_line_rect,
             self.track_lines.mid_line_rect,
             self.track_lines.blue_line_rect,
-            self.pass_startline
+            self.pass_startline,
+            block_start=(self.lap_cooldown == 0),  # cooldown bittiyse start_line katı
         )
 
         # Calculate the reward
         if self.lap_flag:
             self.reward += 1000     # If the car completes a lap
+            self.lap_cooldown = 60  # ~2 sn: tur sonrası start_line geçilebilir kalsın
 
         # Check if the game is over
         done = False
